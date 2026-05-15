@@ -81,8 +81,19 @@ use heck::ToTitleCase;
 use itertools::Itertools;
 use serde_json::json;
 use tokio::sync::{mpsc, oneshot};
-use tracing::{error, info, warn};
+use tracing::{debug, error, info, warn};
 use uuid::Uuid;
+
+/// 判定是否为 Codex 在「模型 slug 无内置元数据」时发出的固定提示。
+///
+/// `codex-core` 在 `turn_context::maybe_emit_unknown_model_warning_for_turn` 中构造该文案并
+/// 通过 `EventMsg::Warning` 发出；对自定义/国内兼容模型这是常态，但会污染 ACP 对话区。
+/// 按当前产品需求不向客户端转发此条（其它 `Warning` 仍照常转发）。
+fn is_fallback_model_metadata_missing_warning(message: &str) -> bool {
+    const TAIL: &str =
+        "Defaulting to fallback metadata; this can degrade performance and cause issues.";
+    message.starts_with("Model metadata for `") && message.contains(TAIL)
+}
 
 /// Abstraction over the ACP connection for sending notifications and requests
 /// back to the client. This replaces the old `Client` trait usage.
@@ -1403,10 +1414,15 @@ impl PromptState {
             }
             EventMsg::Warning(WarningEvent { message })
             | EventMsg::GuardianWarning(WarningEvent { message }) => {
-                warn!("Warning: {message}");
-                // Forward warnings to the client as agent messages so users see
-                // informational notices (e.g., the post-compact advisory message).
-                client.send_agent_text(message);
+                if is_fallback_model_metadata_missing_warning(&message) {
+                    // 不向用户展示；保留低级别日志便于排查模型目录配置问题。
+                    debug!(target: "nuwax_codex_acp", suppressed_warning = %message);
+                } else {
+                    warn!("Warning: {message}");
+                    // Forward warnings to the client as agent messages so users see
+                    // informational notices (e.g., the post-compact advisory message).
+                    client.send_agent_text(message);
+                }
             }
             EventMsg::McpStartupUpdate(McpStartupUpdateEvent { server, status }) => {
                 info!("MCP startup update: server={server}, status={status:?}");
@@ -4487,6 +4503,83 @@ mod tests {
         assert!(mode_trusts_project("full-access"));
     }
 
+    #[test]
+    fn fallback_model_metadata_warning_is_identified_without_matching_other_warnings() {
+        assert!(is_fallback_model_metadata_missing_warning(
+            "Model metadata for `glm-5` not found. Defaulting to fallback metadata; this can degrade performance and cause issues."
+        ));
+        assert!(is_fallback_model_metadata_missing_warning(
+            "Model metadata for `custom-provider/glm-5` not found. Defaulting to fallback metadata; this can degrade performance and cause issues."
+        ));
+
+        assert!(!is_fallback_model_metadata_missing_warning(
+            "Model metadata for `glm-5` not found."
+        ));
+        assert!(!is_fallback_model_metadata_missing_warning(
+            "Network timeout while sending request"
+        ));
+    }
+
+    #[tokio::test]
+    async fn fallback_model_metadata_warning_is_not_forwarded_to_client() -> anyhow::Result<()> {
+        let (session_id, client, _, message_tx, _handle) = setup().await?;
+        let (prompt_response_tx, prompt_response_rx) = tokio::sync::oneshot::channel();
+
+        message_tx.send(ThreadMessage::Prompt {
+            request: PromptRequest::new(
+                session_id.clone(),
+                vec!["fallback-model-metadata-warning".into()],
+            ),
+            response_tx: prompt_response_tx,
+        })?;
+
+        let stop_reason = prompt_response_rx.await??.await??;
+        assert_eq!(stop_reason, StopReason::EndTurn);
+        drop(message_tx);
+
+        let notifications = client.notifications.lock().unwrap();
+        assert!(
+            notifications.iter().all(|notification| !matches!(
+                &notification.update,
+                SessionUpdate::AgentMessageChunk(ContentChunk {
+                    content: ContentBlock::Text(TextContent { text, .. }),
+                    ..
+                }) if text.contains("Model metadata for `glm-5` not found")
+            )),
+            "fallback model metadata warning should not be forwarded: {notifications:?}"
+        );
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn regular_warning_is_still_forwarded_to_client() -> anyhow::Result<()> {
+        let (session_id, client, _, message_tx, _handle) = setup().await?;
+        let (prompt_response_tx, prompt_response_rx) = tokio::sync::oneshot::channel();
+
+        message_tx.send(ThreadMessage::Prompt {
+            request: PromptRequest::new(session_id.clone(), vec!["regular-warning".into()]),
+            response_tx: prompt_response_tx,
+        })?;
+
+        let stop_reason = prompt_response_rx.await??.await??;
+        assert_eq!(stop_reason, StopReason::EndTurn);
+        drop(message_tx);
+
+        let notifications = client.notifications.lock().unwrap();
+        assert!(notifications.iter().any(|notification| {
+            matches!(
+                &notification.update,
+                SessionUpdate::AgentMessageChunk(ContentChunk {
+                    content: ContentBlock::Text(TextContent { text, .. }),
+                    ..
+                }) if text == "Network timeout while sending request"
+            )
+        }));
+
+        Ok(())
+    }
+
     #[tokio::test]
     async fn test_init() -> anyhow::Result<()> {
         let (session_id, client, thread, message_tx, _handle) = setup().await?;
@@ -4988,6 +5081,49 @@ mod tests {
                                     msg: EventMsg::TurnComplete(TurnCompleteEvent {
                                         last_agent_message: None,
                                         turn_id,
+                                        completed_at: None,
+                                        duration_ms: None,
+                                        time_to_first_token_ms: None,
+                                    }),
+                                })
+                                .unwrap();
+                        } else if prompt == "fallback-model-metadata-warning" {
+                            self.op_tx
+                                .send(Event {
+                                    id: id.to_string(),
+                                    msg: EventMsg::Warning(WarningEvent {
+                                        message: "Model metadata for `glm-5` not found. Defaulting to fallback metadata; this can degrade performance and cause issues.".to_string(),
+                                    }),
+                                })
+                                .unwrap();
+                            self.op_tx
+                                .send(Event {
+                                    id: id.to_string(),
+                                    msg: EventMsg::TurnComplete(TurnCompleteEvent {
+                                        last_agent_message: None,
+                                        turn_id: id.to_string(),
+                                        completed_at: None,
+                                        duration_ms: None,
+                                        time_to_first_token_ms: None,
+                                    }),
+                                })
+                                .unwrap();
+                        } else if prompt == "regular-warning" {
+                            self.op_tx
+                                .send(Event {
+                                    id: id.to_string(),
+                                    msg: EventMsg::Warning(WarningEvent {
+                                        message: "Network timeout while sending request"
+                                            .to_string(),
+                                    }),
+                                })
+                                .unwrap();
+                            self.op_tx
+                                .send(Event {
+                                    id: id.to_string(),
+                                    msg: EventMsg::TurnComplete(TurnCompleteEvent {
+                                        last_agent_message: None,
+                                        turn_id: id.to_string(),
                                         completed_at: None,
                                         duration_ms: None,
                                         time_to_first_token_ms: None,
