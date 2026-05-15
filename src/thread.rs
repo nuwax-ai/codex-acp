@@ -92,7 +92,7 @@ use uuid::Uuid;
 fn is_fallback_model_metadata_missing_warning(message: &str) -> bool {
     const TAIL: &str =
         "Defaulting to fallback metadata; this can degrade performance and cause issues.";
-    message.starts_with("Model metadata for `") && message.contains(TAIL)
+    message.starts_with("Model metadata for `") && message.ends_with(TAIL)
 }
 
 /// Abstraction over the ACP connection for sending notifications and requests
@@ -4248,6 +4248,14 @@ mod tests {
 
     use super::*;
 
+    const UNKNOWN_MODEL_FOR_FALLBACK_WARNING_TEST: &str = "unknown-domestic-model";
+
+    fn fallback_model_metadata_warning(model: &str) -> String {
+        format!(
+            "Model metadata for `{model}` not found. Defaulting to fallback metadata; this can degrade performance and cause issues."
+        )
+    }
+
     #[tokio::test]
     async fn test_prompt() -> anyhow::Result<()> {
         let (session_id, client, _, message_tx, _handle) = setup().await?;
@@ -4506,14 +4514,17 @@ mod tests {
     #[test]
     fn fallback_model_metadata_warning_is_identified_without_matching_other_warnings() {
         assert!(is_fallback_model_metadata_missing_warning(
-            "Model metadata for `glm-5` not found. Defaulting to fallback metadata; this can degrade performance and cause issues."
+            &fallback_model_metadata_warning(UNKNOWN_MODEL_FOR_FALLBACK_WARNING_TEST)
         ));
         assert!(is_fallback_model_metadata_missing_warning(
-            "Model metadata for `custom-provider/glm-5` not found. Defaulting to fallback metadata; this can degrade performance and cause issues."
+            &fallback_model_metadata_warning("custom-provider/unknown-domestic-model")
         ));
 
         assert!(!is_fallback_model_metadata_missing_warning(
-            "Model metadata for `glm-5` not found."
+            "Model metadata for `unknown-domestic-model` not found."
+        ));
+        assert!(!is_fallback_model_metadata_missing_warning(
+            "Model metadata for `unknown-domestic-model` not found. Defaulting to fallback metadata; this can degrade performance and cause issues. Extra details."
         ));
         assert!(!is_fallback_model_metadata_missing_warning(
             "Network timeout while sending request"
@@ -4544,7 +4555,7 @@ mod tests {
                 SessionUpdate::AgentMessageChunk(ContentChunk {
                     content: ContentBlock::Text(TextContent { text, .. }),
                     ..
-                }) if text.contains("Model metadata for `glm-5` not found")
+                }) if is_fallback_model_metadata_missing_warning(text)
             )),
             "fallback model metadata warning should not be forwarded: {notifications:?}"
         );
@@ -5092,7 +5103,9 @@ mod tests {
                                 .send(Event {
                                     id: id.to_string(),
                                     msg: EventMsg::Warning(WarningEvent {
-                                        message: "Model metadata for `glm-5` not found. Defaulting to fallback metadata; this can degrade performance and cause issues.".to_string(),
+                                        message: fallback_model_metadata_warning(
+                                            UNKNOWN_MODEL_FOR_FALLBACK_WARNING_TEST,
+                                        ),
                                     }),
                                 })
                                 .unwrap();

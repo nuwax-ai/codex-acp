@@ -20,6 +20,36 @@ const ENV_CODEX_BASE_URL: &str = "CODEX_BASE_URL";
 const ENV_CODEX_API_KEY: &str = "CODEX_API_KEY";
 const ENV_CODEX_PROVIDER_ID: &str = "CODEX_PROVIDER_ID";
 const ENV_CODEX_PROVIDER_NAME: &str = "CODEX_PROVIDER_NAME";
+const ENV_CODEX_MODEL_CONTEXT_WINDOW: &str = "CODEX_MODEL_CONTEXT_WINDOW";
+const DEFAULT_CUSTOM_MODEL_CONTEXT_WINDOW: i64 = 200_000;
+
+#[derive(Debug, PartialEq, Eq)]
+enum ModelContextWindowResolution {
+    Explicit(i64),
+    Default(i64),
+    Keep,
+    Invalid(String),
+}
+
+fn resolve_model_context_window_override(
+    raw_value: Option<&str>,
+    custom_provider_configured: bool,
+    current_context_window: Option<i64>,
+) -> ModelContextWindowResolution {
+    if let Some(raw_value) = raw_value {
+        let trimmed = raw_value.trim();
+        return match trimmed.parse::<i64>() {
+            Ok(value) if value > 0 => ModelContextWindowResolution::Explicit(value),
+            _ => ModelContextWindowResolution::Invalid(trimmed.to_string()),
+        };
+    }
+
+    if custom_provider_configured && current_context_window.is_none() {
+        ModelContextWindowResolution::Default(DEFAULT_CUSTOM_MODEL_CONTEXT_WINDOW)
+    } else {
+        ModelContextWindowResolution::Keep
+    }
+}
 
 /// Apply environment variable overrides to the loaded configuration.
 /// This enables per-process configuration of the LLM model,
@@ -46,18 +76,38 @@ fn apply_env_overrides(mut config: Config) -> Config {
         .ok()
         .filter(|v| !v.trim().is_empty());
 
-    let base_url = std::env::var(ENV_CODEX_BASE_URL)
-        .ok()
-        .and_then(|v| {
-            let trimmed = v.trim();
-            if trimmed.is_empty() {
-                None
-            } else {
-                Some(trimmed.to_string())
-            }
-        });
+    let base_url = std::env::var(ENV_CODEX_BASE_URL).ok().and_then(|v| {
+        let trimmed = v.trim();
+        if trimmed.is_empty() {
+            None
+        } else {
+            Some(trimmed.to_string())
+        }
+    });
 
-    if base_url.is_some() || api_key.is_some() {
+    let model_context_window = std::env::var(ENV_CODEX_MODEL_CONTEXT_WINDOW).ok();
+    let custom_provider_configured = base_url.is_some() || api_key.is_some();
+
+    match resolve_model_context_window_override(
+        model_context_window.as_deref(),
+        custom_provider_configured,
+        config.model_context_window,
+    ) {
+        ModelContextWindowResolution::Explicit(value)
+        | ModelContextWindowResolution::Default(value) => {
+            config.model_context_window = Some(value);
+        }
+        ModelContextWindowResolution::Keep => {}
+        ModelContextWindowResolution::Invalid(value) => {
+            tracing::warn!(
+                env_var = ENV_CODEX_MODEL_CONTEXT_WINDOW,
+                value = %value,
+                "ignoring invalid model context window override; expected a positive integer"
+            );
+        }
+    }
+
+    if custom_provider_configured {
         let provider_info = ModelProviderInfo {
             name: provider_name.unwrap_or_else(|| provider_id.clone()),
             base_url,
@@ -110,6 +160,7 @@ fn apply_env_overrides(mut config: Config) -> Config {
             base_url = %config.model_provider.base_url.as_deref().unwrap_or("<unset>"),
             provider_id = %config.model_provider_id,
             provider_name = %config.model_provider.name,
+            model_context_window = ?config.model_context_window,
             "applied environment variable overrides"
         );
     }
@@ -185,3 +236,56 @@ pub use codex_mcp_server::{
     CodexToolCallParam, CodexToolCallReplyParam, ExecApprovalElicitRequestParams,
     ExecApprovalResponse, PatchApprovalElicitRequestParams, PatchApprovalResponse,
 };
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn model_context_window_uses_explicit_env_value() {
+        assert_eq!(
+            resolve_model_context_window_override(Some("200000"), true, None),
+            ModelContextWindowResolution::Explicit(200_000)
+        );
+    }
+
+    #[test]
+    fn model_context_window_defaults_for_custom_provider_when_unset() {
+        assert_eq!(
+            resolve_model_context_window_override(None, true, None),
+            ModelContextWindowResolution::Default(DEFAULT_CUSTOM_MODEL_CONTEXT_WINDOW)
+        );
+    }
+
+    #[test]
+    fn model_context_window_keeps_existing_config_when_env_unset() {
+        assert_eq!(
+            resolve_model_context_window_override(None, true, Some(128_000)),
+            ModelContextWindowResolution::Keep
+        );
+    }
+
+    #[test]
+    fn model_context_window_invalid_values_do_not_override() {
+        assert_eq!(
+            resolve_model_context_window_override(Some("abc"), true, Some(128_000)),
+            ModelContextWindowResolution::Invalid("abc".to_string())
+        );
+        assert_eq!(
+            resolve_model_context_window_override(Some("0"), true, None),
+            ModelContextWindowResolution::Invalid("0".to_string())
+        );
+        assert_eq!(
+            resolve_model_context_window_override(Some("-1"), true, None),
+            ModelContextWindowResolution::Invalid("-1".to_string())
+        );
+    }
+
+    #[test]
+    fn model_context_window_is_not_defaulted_for_builtin_provider() {
+        assert_eq!(
+            resolve_model_context_window_override(None, false, None),
+            ModelContextWindowResolution::Keep
+        );
+    }
+}
