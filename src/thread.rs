@@ -43,7 +43,7 @@ use codex_protocol::{
     error::CodexErr,
     mcp::CallToolResult,
     models::{
-        ActivePermissionProfile, AdditionalPermissionProfile, PermissionProfile, ResponseItem,
+        AdditionalPermissionProfile, PermissionProfile, ResponseItem,
         WebSearchAction,
     },
     openai_models::{ModelPreset, ReasoningEffort},
@@ -136,15 +136,6 @@ fn session_mode_id_for_active_profile(profile_id: &str) -> Option<&'static str> 
     }
 }
 
-fn active_profile_id_for_session_mode(mode_id: &str) -> Option<&'static str> {
-    match mode_id {
-        "read-only" => Some(CODEX_READ_ONLY_PROFILE_ID),
-        "auto" => Some(CODEX_WORKSPACE_PROFILE_ID),
-        "full-access" => Some(CODEX_DANGER_NO_SANDBOX_PROFILE_ID),
-        _ => None,
-    }
-}
-
 fn approval_matches_current_config(preset: &ApprovalPreset, config: &Config) -> bool {
     std::mem::discriminant(&preset.approval)
         == std::mem::discriminant(config.permissions.approval_policy.get())
@@ -169,7 +160,7 @@ fn untrusted_read_only_mode_id(config: &Config) -> Option<SessionModeId> {
 }
 
 fn semantic_session_mode_id_for_permission_profile(config: &Config) -> Option<&'static str> {
-    let permission_profile = config.permissions.permission_profile.get();
+    let permission_profile = &config.permissions.permission_profile();
 
     match permission_profile {
         PermissionProfile::Managed { .. } => {
@@ -205,7 +196,7 @@ fn current_session_mode_id(config: &Config) -> Option<SessionModeId> {
 
     if let Some(preset) = APPROVAL_PRESETS.iter().find(|preset| {
         approval_matches_current_config(preset, config)
-            && &preset.permission_profile == config.permissions.permission_profile.get()
+            && &preset.permission_profile == config.permissions.permission_profile()
     }) {
         return Some(SessionModeId::new(preset.id));
     }
@@ -845,6 +836,7 @@ impl SubmissionState {
         }
     }
 
+    #[allow(irrefutable_let_patterns)]
     fn fail(&mut self, err: Error) {
         if let Self::Prompt(state) = self
             && let Some(response_tx) = state.response_tx.take()
@@ -1140,6 +1132,8 @@ impl PromptState {
                 images: _,
                 text_elements: _,
                 local_images: _,
+                image_details: _,
+                local_image_details: _,
             }) => {
                 info!("User message: {message:?}");
             }
@@ -1478,7 +1472,6 @@ impl PromptState {
             | EventMsg::HookCompleted(..)
             // we already have a way to diff the turn, so ignore
             | EventMsg::TurnDiff(..)
-            | EventMsg::SkillsUpdateAvailable
             // Old events
             | EventMsg::RawResponseItem(..)
             | EventMsg::SessionConfigured(..)
@@ -1517,6 +1510,7 @@ impl PromptState {
             id,
             request,
             turn_id: _,
+            ..
         } = event;
         if let Some(supported_request) = build_supported_mcp_elicitation_permission_request(
             &server_name,
@@ -1611,6 +1605,7 @@ impl PromptState {
             // grant_root doesn't seem to be set anywhere on the codex side
             grant_root: _,
             turn_id: _,
+            ..
         } = event;
         let (title, locations, content) = extract_tool_call_content_from_changes(changes);
         let request_key = patch_request_key(&call_id);
@@ -1654,6 +1649,7 @@ impl PromptState {
             auto_approved: _,
             changes,
             turn_id: _,
+            ..
         } = event;
 
         let (title, locations, content) = extract_tool_call_content_from_changes(changes);
@@ -1859,6 +1855,7 @@ impl PromptState {
             additional_permissions,
             available_decisions: _,
             proposed_network_policy_amendments,
+            ..
         } = event;
 
         // Create a new tool call for the command execution
@@ -2278,6 +2275,7 @@ impl PromptState {
             reason,
             permissions,
             cwd: _,
+            ..
         } = event;
 
         // Create a new tool call for the command execution
@@ -3393,10 +3391,7 @@ impl<A: Auth> ThreadActor<A> {
             .map_err(|e| Error::from(anyhow::anyhow!(e)))?;
         self.config
             .permissions
-            .set_permission_profile_with_active_profile(
-                preset.permission_profile.clone(),
-                active_profile_id_for_session_mode(preset.id).map(ActivePermissionProfile::new),
-            )
+            .set_permission_profile(preset.permission_profile.clone())
             .map_err(|e| Error::from(anyhow::anyhow!(e)))?;
 
         if mode_trusts_project(preset.id) {
@@ -3835,6 +3830,7 @@ fn build_prompt_items(prompt: Vec<ContentBlock>) -> Vec<UserInput> {
             }),
             ContentBlock::Image(image_block) => Some(UserInput::Image {
                 image_url: format!("data:{};base64,{}", image_block.mime_type, image_block.data),
+                detail: None,
             }),
             ContentBlock::ResourceLink(ResourceLink { name, uri, .. }) => Some(UserInput::Text {
                 text: format_uri_as_link(Some(name), uri),
@@ -4459,10 +4455,7 @@ mod tests {
 
         config
             .permissions
-            .set_permission_profile_with_active_profile(
-                augmented_profile,
-                Some(ActivePermissionProfile::new(CODEX_WORKSPACE_PROFILE_ID)),
-            )?;
+            .set_permission_profile(augmented_profile)?;
 
         let mode_id = current_session_mode_id(&config).expect("mode should be recognized");
         assert_eq!(mode_id.0.as_ref(), "auto");
@@ -5151,6 +5144,7 @@ mod tests {
                                         call_id: "call-id".to_string(),
                                         approval_id: Some("approval-id".to_string()),
                                         turn_id: id.to_string(),
+                                        started_at_ms: 0,
                                         command: vec!["echo".to_string(), "hi".to_string()],
                                         cwd: std::env::current_dir().unwrap().try_into().unwrap(),
                                         reason: None,
@@ -5481,6 +5475,7 @@ mod tests {
                 call_id: "call-id".to_string(),
                 approval_id: Some("approval-id".to_string()),
                 turn_id: "turn-id".to_string(),
+                started_at_ms: 0,
                 command: vec!["echo".to_string(), "hi".to_string()],
                 cwd: std::env::current_dir()?.try_into()?,
                 reason: None,
@@ -5724,6 +5719,7 @@ mod tests {
                     call_id: "call-id".to_string(),
                     approval_id: Some("approval-id".to_string()),
                     turn_id: "turn-id".to_string(),
+                    started_at_ms: 0,
                     command: vec!["echo".to_string(), "hi".to_string()],
                     cwd: std::env::current_dir()?.try_into()?,
                     reason: None,

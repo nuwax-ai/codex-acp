@@ -18,7 +18,9 @@ use codex_core::{
     config::Config, find_thread_path_by_id_str, init_state_db, parse_cursor,
     resolve_installation_id, thread_store_from_config,
 };
-use codex_exec_server::{EnvironmentManager, EnvironmentManagerArgs, ExecServerRuntimePaths};
+use codex_core::AttestationProvider;
+use codex_exec_server::{EnvironmentManager, ExecServerRuntimePaths};
+use codex_extension_api::ExtensionRegistryBuilder;
 use codex_login::{
     CODEX_API_KEY_ENV_VAR, OPENAI_API_KEY_ENV_VAR,
     auth::{AuthManager, CodexAuth, read_codex_api_key_from_env, read_openai_api_key_from_env},
@@ -78,24 +80,29 @@ impl CodexAgent {
         let client_capabilities: Arc<Mutex<ClientCapabilities>> = Arc::default();
         let session_roots: Arc<Mutex<HashMap<SessionId, PathBuf>>> = Arc::default();
         let state_db = init_state_db(&config).await;
+        let runtime_paths = ExecServerRuntimePaths::new(
+            std::env::current_exe()?,
+            codex_linux_sandbox_exe,
+        )?;
         let environment_manager = Arc::new(
-            EnvironmentManager::new(EnvironmentManagerArgs::new(ExecServerRuntimePaths::new(
-                std::env::current_exe()?,
-                codex_linux_sandbox_exe,
-            )?))
-            .await,
+            EnvironmentManager::from_env(runtime_paths)
+                .await
+                .map_err(|e| std::io::Error::other(format!("environment manager: {e}")))?,
         );
         let thread_store = thread_store_from_config(&config, state_db.clone());
         let installation_id = resolve_installation_id(&config.codex_home).await?;
+        let extensions = Arc::new(ExtensionRegistryBuilder::new().build());
         let thread_manager = ThreadManager::new(
             &config,
             auth_manager.clone(),
             SessionSource::Unknown,
             environment_manager,
+            extensions,
             None,
             thread_store,
             state_db.clone(),
             installation_id,
+            None as Option<Arc<dyn AttestationProvider>>,
         );
         Ok(Self {
             auth_manager,
@@ -326,7 +333,6 @@ impl CodexAgent {
         mcp_servers: Vec<McpServer>,
     ) -> Result<Config, Error> {
         let mut config = self.config.clone();
-        config.include_apply_patch_tool = true;
         config.cwd = cwd.try_into().map_err(Error::into_internal_error)?;
         let cwd = config.cwd.clone();
 
@@ -362,6 +368,7 @@ impl CodexAgent {
                             enabled_tools: None,
                             disabled_reason: None,
                             scopes: None,
+                            oauth: None,
                             oauth_resource: None,
                             tools: Default::default(),
                             experimental_environment: None,
@@ -401,6 +408,7 @@ impl CodexAgent {
                             enabled_tools: None,
                             disabled_reason: None,
                             scopes: None,
+                            oauth: None,
                             oauth_resource: None,
                             tools: Default::default(),
                             experimental_environment: None,

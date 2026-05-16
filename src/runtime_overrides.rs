@@ -12,6 +12,7 @@ const ENV_CODEX_PROVIDER_ID: &str = "CODEX_PROVIDER_ID";
 const ENV_CODEX_PROVIDER_NAME: &str = "CODEX_PROVIDER_NAME";
 const ENV_CODEX_MODEL_CONTEXT_WINDOW: &str = "CODEX_MODEL_CONTEXT_WINDOW";
 const ENV_CODEX_PERSONALITY_ENABLED: &str = "CODEX_PERSONALITY_ENABLED";
+const ENV_CODEX_WIRE_API: &str = "CODEX_WIRE_API";
 const DEFAULT_CUSTOM_MODEL_CONTEXT_WINDOW: i64 = 200_000;
 
 /// Runtime model/provider overrides for embedded callers.
@@ -28,6 +29,7 @@ pub struct CodexRuntimeOverrides {
     pub provider_name: Option<String>,
     pub model_context_window: Option<i64>,
     pub personality_enabled: Option<bool>,
+    pub wire_api: Option<String>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -39,6 +41,7 @@ struct RuntimeOverrideValues {
     provider_name: Option<String>,
     model_context_window: Option<String>,
     personality_enabled: Option<String>,
+    wire_api: Option<String>,
 }
 
 impl From<CodexRuntimeOverrides> for RuntimeOverrideValues {
@@ -53,6 +56,7 @@ impl From<CodexRuntimeOverrides> for RuntimeOverrideValues {
                 .model_context_window
                 .map(|value| value.to_string()),
             personality_enabled: overrides.personality_enabled.map(|value| value.to_string()),
+            wire_api: overrides.wire_api,
         }
     }
 }
@@ -119,6 +123,20 @@ fn resolve_personality_override(
     }
 }
 
+fn parse_wire_api(raw_value: Option<&str>) -> Option<codex_model_provider_info::WireApi> {
+    match raw_value?.trim().to_ascii_lowercase().as_str() {
+        "responses" => Some(codex_model_provider_info::WireApi::Responses),
+        "chat" => Some(codex_model_provider_info::WireApi::Chat),
+        other => {
+            tracing::warn!(
+                value = %other,
+                "ignoring invalid wire_api; expected 'responses' or 'chat'"
+            );
+            None
+        }
+    }
+}
+
 fn set_personality_enabled(config: &mut Config, enabled: bool) {
     let result = if enabled {
         config.features.enable(Feature::Personality)
@@ -162,6 +180,7 @@ fn read_runtime_overrides_from_env() -> RuntimeOverrideValues {
         provider_name: non_empty_env_var(ENV_CODEX_PROVIDER_NAME),
         model_context_window: non_empty_env_var(ENV_CODEX_MODEL_CONTEXT_WINDOW),
         personality_enabled: non_empty_env_var(ENV_CODEX_PERSONALITY_ENABLED),
+        wire_api: non_empty_env_var(ENV_CODEX_WIRE_API),
     }
 }
 
@@ -266,8 +285,11 @@ fn apply_runtime_override_values(mut config: Config, overrides: RuntimeOverrideV
             experimental_bearer_token: api_key,
             auth: None,
             aws: None,
-            // Use Responses API wire protocol (codex only supports this)
-            wire_api: Default::default(),
+            wire_api: overrides
+                .wire_api
+                .as_deref()
+                .and_then(|v| parse_wire_api(Some(v)))
+                .unwrap_or_default(),
             query_params: None,
             // Include version header for debugging/analytics
             http_headers: Some(
@@ -452,6 +474,7 @@ mod tests {
                 provider_name: Some("GLM".to_string()),
                 model_context_window: Some(200_000),
                 personality_enabled: None,
+                ..CodexRuntimeOverrides::default()
             },
         );
 
@@ -558,5 +581,60 @@ mod tests {
             base_personality_enabled
         );
         assert_eq!(config.personality, base_personality);
+    }
+
+    #[test]
+    fn wire_api_parses_chat() {
+        use codex_model_provider_info::WireApi;
+        assert_eq!(parse_wire_api(Some("chat")), Some(WireApi::Chat));
+    }
+
+    #[test]
+    fn wire_api_parses_responses() {
+        use codex_model_provider_info::WireApi;
+        assert_eq!(parse_wire_api(Some("responses")), Some(WireApi::Responses));
+    }
+
+    #[test]
+    fn wire_api_defaults_to_none_when_unset() {
+        assert_eq!(parse_wire_api(None), None);
+    }
+
+    #[test]
+    fn wire_api_ignores_invalid_values() {
+        assert_eq!(parse_wire_api(Some("invalid")), None);
+        assert_eq!(parse_wire_api(Some("")), None);
+        assert_eq!(parse_wire_api(Some("CHATGPT")), None);
+    }
+
+    #[tokio::test]
+    async fn runtime_overrides_sets_wire_api_to_chat() {
+        let config = apply_runtime_overrides(
+            base_test_config().await,
+            CodexRuntimeOverrides {
+                base_url: Some("http://127.0.0.1:12345/v1".to_string()),
+                api_key: Some("real-key".to_string()),
+                provider_id: Some("glm".to_string()),
+                wire_api: Some("chat".to_string()),
+                ..CodexRuntimeOverrides::default()
+            },
+        );
+        use codex_model_provider_info::WireApi;
+        assert_eq!(config.model_provider.wire_api, WireApi::Chat);
+    }
+
+    #[tokio::test]
+    async fn runtime_overrides_defaults_wire_api_to_responses() {
+        let config = apply_runtime_overrides(
+            base_test_config().await,
+            CodexRuntimeOverrides {
+                base_url: Some("http://127.0.0.1:12345/v1".to_string()),
+                api_key: Some("real-key".to_string()),
+                provider_id: Some("glm".to_string()),
+                ..CodexRuntimeOverrides::default()
+            },
+        );
+        use codex_model_provider_info::WireApi;
+        assert_eq!(config.model_provider.wire_api, WireApi::Responses);
     }
 }

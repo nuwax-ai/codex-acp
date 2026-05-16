@@ -21,20 +21,21 @@ path = "src/lib.rs"
 agent-client-protocol = { version = "=0.11.1", features = ["unstable"] }
 anyhow = "1"
 clap = "4"
-codex-apply-patch = { git = "https://github.com/openai/codex", tag = "rust-v0.129.0" }
-codex-arg0 = { git = "https://github.com/openai/codex", tag = "rust-v0.129.0" }
-codex-config = { git = "https://github.com/openai/codex", tag = "rust-v0.129.0" }
-codex-core = { git = "https://github.com/openai/codex", tag = "rust-v0.129.0" }
-codex-features = { git = "https://github.com/openai/codex", tag = "rust-v0.129.0" }
-codex-model-provider-info = { git = "https://github.com/openai/codex", tag = "rust-v0.129.0" }
-codex-exec-server = { git = "https://github.com/openai/codex", tag = "rust-v0.129.0" }
-codex-mcp-server = { git = "https://github.com/openai/codex", tag = "rust-v0.129.0" }
-codex-models-manager = { git = "https://github.com/openai/codex", tag = "rust-v0.129.0" }
-codex-protocol = { git = "https://github.com/openai/codex", tag = "rust-v0.129.0" }
-codex-login = { git = "https://github.com/openai/codex", tag = "rust-v0.129.0" }
-codex-shell-command = { git = "https://github.com/openai/codex", tag = "rust-v0.129.0" }
-codex-utils-approval-presets = { git = "https://github.com/openai/codex", tag = "rust-v0.129.0" }
-codex-utils-cli = { git = "https://github.com/openai/codex", tag = "rust-v0.129.0" }
+codex-apply-patch = { path = "/Volumes/soddy/git_workspace/fork-codex/codex-rs/apply-patch" }
+codex-arg0 = { path = "/Volumes/soddy/git_workspace/fork-codex/codex-rs/arg0" }
+codex-config = { path = "/Volumes/soddy/git_workspace/fork-codex/codex-rs/config" }
+codex-core = { path = "/Volumes/soddy/git_workspace/fork-codex/codex-rs/core", features = ["rust-genai"] }
+codex-features = { path = "/Volumes/soddy/git_workspace/fork-codex/codex-rs/features" }
+codex-model-provider-info = { path = "/Volumes/soddy/git_workspace/fork-codex/codex-rs/model-provider-info" }
+codex-exec-server = { path = "/Volumes/soddy/git_workspace/fork-codex/codex-rs/exec-server" }
+codex-extension-api = { path = "/Volumes/soddy/git_workspace/fork-codex/codex-rs/ext/extension-api" }
+codex-mcp-server = { path = "/Volumes/soddy/git_workspace/fork-codex/codex-rs/mcp-server" }
+codex-models-manager = { path = "/Volumes/soddy/git_workspace/fork-codex/codex-rs/models-manager" }
+codex-protocol = { path = "/Volumes/soddy/git_workspace/fork-codex/codex-rs/protocol" }
+codex-login = { path = "/Volumes/soddy/git_workspace/fork-codex/codex-rs/login" }
+codex-shell-command = { path = "/Volumes/soddy/git_workspace/fork-codex/codex-rs/shell-command" }
+codex-utils-approval-presets = { path = "/Volumes/soddy/git_workspace/fork-codex/codex-rs/utils/approval-presets" }
+codex-utils-cli = { path = "/Volumes/soddy/git_workspace/fork-codex/codex-rs/utils/cli" }
 diffy = { version = "0.5.0", features = ["std"] }
 # Pin gix-actor to 0.40.0 because 0.40.1 bumped winnow to 1.0 in what is
 # technically a patch release, which makes it incompatible with gix-object
