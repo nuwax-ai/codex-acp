@@ -44,14 +44,48 @@ async fn load_config(
 }
 
 fn init_tracing() {
-    // Install a simple subscriber so `tracing` output is visible.
-    // Users can control the log level with `RUST_LOG`.
-    drop(
-        tracing_subscriber::fmt()
-            .with_writer(std::io::stderr)
-            .with_env_filter(EnvFilter::from_default_env())
-            .try_init(),
-    );
+    use tracing_appender::non_blocking::WorkerGuard;
+    use tracing_subscriber::prelude::*;
+
+    static LOG_GUARD: std::sync::OnceLock<WorkerGuard> = std::sync::OnceLock::new();
+
+    let env_filter = EnvFilter::from_default_env();
+
+    if let Ok(log_dir) = std::env::var("CODEX_LOG_DIR")
+        && !log_dir.is_empty()
+    {
+        // Only initialize the guard once to prevent it from being dropped
+        // on subsequent calls to init_tracing().
+        if LOG_GUARD.get().is_none() {
+            let file_appender = tracing_appender::rolling::never(&log_dir, "codex-acp.log");
+            let (non_blocking, guard) = tracing_appender::non_blocking(file_appender);
+
+            // Store the guard in a static OnceLock to keep it alive for the
+            // lifetime of the process without leaking memory.
+            #[allow(let_underscore_drop)]
+            let _ = LOG_GUARD.set(guard);
+
+            let stderr_layer = tracing_subscriber::fmt::layer().with_writer(std::io::stderr);
+            let file_layer = tracing_subscriber::fmt::layer()
+                .with_writer(non_blocking)
+                .with_ansi(false);
+
+            drop(
+                tracing_subscriber::registry()
+                    .with(env_filter)
+                    .with(stderr_layer)
+                    .with(file_layer)
+                    .try_init(),
+            );
+        }
+    } else {
+        drop(
+            tracing_subscriber::fmt()
+                .with_writer(std::io::stderr)
+                .with_env_filter(env_filter)
+                .try_init(),
+        );
+    }
 }
 
 /// Run the Codex ACP agent.

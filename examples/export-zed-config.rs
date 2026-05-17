@@ -21,13 +21,20 @@ use serde_json::Value;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
+fn default_zed_config_path() -> PathBuf {
+    dirs::config_dir()
+        .unwrap_or_else(|| PathBuf::from("."))
+        .join("zed")
+        .join("settings.json")
+}
+
 #[derive(Parser)]
 #[command(name = "export-zed-config")]
 #[command(about = "Extract nuwax-codex-acp configs from Zed settings.json")]
 struct Cli {
-    /// Path to Zed settings.json
-    #[arg(long, default_value = "/Users/soddy/.config/zed/settings.json")]
-    zed_config: PathBuf,
+    /// Path to Zed settings.json (defaults to ~/.config/zed/settings.json)
+    #[arg(long)]
+    zed_config: Option<PathBuf>,
 
     /// Output path for config.json
     #[arg(long, default_value = "config.json")]
@@ -57,8 +64,11 @@ struct TestConfig {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
 
+    let zed_config_path = cli.zed_config.unwrap_or_else(default_zed_config_path);
+    eprintln!("Reading Zed config from: {:?}", zed_config_path);
+
     let zed_json: Value = {
-        let content = std::fs::read_to_string(&cli.zed_config)?;
+        let content = std::fs::read_to_string(&zed_config_path)?;
         let cleaned = strip_json_comments(&content);
         serde_json::from_str(&cleaned)?
     };

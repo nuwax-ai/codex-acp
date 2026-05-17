@@ -13,12 +13,12 @@ use acp::schema::{
 use acp::{Agent, Client, ConnectTo, ConnectionTo, Error};
 use agent_client_protocol as acp;
 use codex_config::{McpServerConfig, McpServerTransportConfig};
+use codex_core::AttestationProvider;
 use codex_core::{
     NewThread, RolloutRecorder, SortDirection, StateDbHandle, ThreadManager, ThreadSortKey,
     config::Config, find_thread_path_by_id_str, init_state_db, parse_cursor,
     resolve_installation_id, thread_store_from_config,
 };
-use codex_core::AttestationProvider;
 use codex_exec_server::{EnvironmentManager, ExecServerRuntimePaths};
 use codex_extension_api::ExtensionRegistryBuilder;
 use codex_login::{
@@ -80,10 +80,8 @@ impl CodexAgent {
         let client_capabilities: Arc<Mutex<ClientCapabilities>> = Arc::default();
         let session_roots: Arc<Mutex<HashMap<SessionId, PathBuf>>> = Arc::default();
         let state_db = init_state_db(&config).await;
-        let runtime_paths = ExecServerRuntimePaths::new(
-            std::env::current_exe()?,
-            codex_linux_sandbox_exe,
-        )?;
+        let runtime_paths =
+            ExecServerRuntimePaths::new(std::env::current_exe()?, codex_linux_sandbox_exe)?;
         let environment_manager = Arc::new(
             EnvironmentManager::from_env(runtime_paths)
                 .await
@@ -465,7 +463,9 @@ impl CodexAgent {
 
         Ok(InitializeResponse::new(protocol_version)
             .agent_capabilities(agent_capabilities)
-            .agent_info(Implementation::new("nuwax-codex-acp", env!("CARGO_PKG_VERSION")).title("Codex"))
+            .agent_info(
+                Implementation::new("nuwax-codex-acp", env!("CARGO_PKG_VERSION")).title("Codex"),
+            )
             .auth_methods(auth_methods))
     }
 

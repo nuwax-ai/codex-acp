@@ -42,10 +42,7 @@ use codex_protocol::{
     dynamic_tools::{DynamicToolCallOutputContentItem, DynamicToolCallRequest},
     error::CodexErr,
     mcp::CallToolResult,
-    models::{
-        AdditionalPermissionProfile, PermissionProfile, ResponseItem,
-        WebSearchAction,
-    },
+    models::{AdditionalPermissionProfile, PermissionProfile, ResponseItem, WebSearchAction},
     openai_models::{ModelPreset, ReasoningEffort},
     parse_command::ParsedCommand,
     permissions::{

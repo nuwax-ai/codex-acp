@@ -6,3 +6,5 @@ codex
 .agents
 .claude
 .idea
+config.json
+test_logs/
