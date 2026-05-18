@@ -313,7 +313,10 @@ impl CodexAgent {
     }
 
     async fn check_auth(&self) -> Result<(), Error> {
-        if self.config.model_provider_id == "openai"
+        // Only require OpenAI authentication when the provider explicitly needs it.
+        // Custom providers (like glm, deepseek, etc.) with API key authentication
+        // should skip this check since they set requires_openai_auth = false.
+        if self.config.model_provider.requires_openai_auth
             && self.auth_manager.auth().await.is_none()
             // Check if anything changed on disk since the last reload
             && !self.auth_manager.reload().await
