@@ -7038,7 +7038,7 @@ dependencies = [
 
 [[package]]
 name = "nuwax-codex-acp"
-version = "0.15.4"
+version = "0.15.5"
 dependencies = [
  "agent-client-protocol",
  "agent-client-protocol-tokio",
