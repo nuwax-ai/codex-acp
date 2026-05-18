@@ -322,6 +322,7 @@ fn apply_runtime_override_values(mut config: Config, overrides: RuntimeOverrideV
             provider_name = %config.model_provider.name,
             model_context_window = ?config.model_context_window,
             personality_enabled = config.features.enabled(Feature::Personality),
+            wire_api = ?config.model_provider.wire_api,
             "applied runtime overrides"
         );
     }
