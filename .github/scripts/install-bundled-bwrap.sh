@@ -7,7 +7,7 @@ set -euo pipefail
 
 mapfile -t codex_tags < <(
   awk '
-    /codex-/ && /https:\/\/github.com\/soddygo\/codex/ {
+    /codex-/ && /https:\/\/github.com\/nuwax-ai\/codex/ {
       if (match($0, /tag = "[^"]+"/)) {
         tag = substr($0, RSTART, RLENGTH)
         sub(/^tag = "/, "", tag)
