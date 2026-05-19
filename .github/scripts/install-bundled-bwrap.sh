@@ -38,7 +38,7 @@ case "${TARGET}" in
 esac
 
 asset_name="bwrap-${bwrap_target}.tar.gz"
-download_url="https://github.com/soddygo/codex/releases/download/${codex_tag}/${asset_name}"
+download_url="https://github.com/nuwax-ai/codex/releases/download/${codex_tag}/${asset_name}"
 release_dir="${GITHUB_WORKSPACE}/target/${TARGET}/release"
 resources_dir="${release_dir}/codex-resources"
 tmp_dir="$(mktemp -d)"
