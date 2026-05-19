@@ -49,9 +49,9 @@ curl -fsSL "${download_url}" -o "${tmp_dir}/${asset_name}"
 tar xzf "${tmp_dir}/${asset_name}" -C "${tmp_dir}" "bwrap-${bwrap_target}"
 
 mkdir -p "${release_dir}" "${resources_dir}"
-install -m 0755 "${tmp_dir}/bwrap-${bwrap_target}" "${release_dir}/bwrap"
-install -m 0755 "${tmp_dir}/bwrap-${bwrap_target}" "${resources_dir}/bwrap"
+install -m 0755 "${tmp_dir}/bwrap-${bwrap_target}/bwrap" "${release_dir}/bwrap"
+install -m 0755 "${tmp_dir}/bwrap-${bwrap_target}/bwrap" "${resources_dir}/bwrap"
 
-digest="$(sha256sum "${tmp_dir}/bwrap-${bwrap_target}" | awk '{print $1}')"
+digest="$(sha256sum "${tmp_dir}/bwrap-${bwrap_target}/bwrap" | awk '{print $1}')"
 echo "CODEX_BWRAP_SHA256=${digest}" >> "${GITHUB_ENV}"
 echo "Installed upstream bwrap ${asset_name} with sha256:${digest}"
