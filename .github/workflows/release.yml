@@ -76,7 +76,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@a0b273b48ed29de4470960879e8381ff45632f26
         with:
           targets: ${{ matrix.target }}
 
