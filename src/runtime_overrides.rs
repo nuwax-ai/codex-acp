@@ -1,6 +1,6 @@
 use codex_core::config::Config;
 use codex_features::Feature;
-use codex_model_provider_info::{ModelProviderInfo, WireApi};
+use codex_model_provider_info::ModelProviderInfo;
 use codex_protocol::config_types::Personality;
 
 /// Environment variable names for agent configuration.
@@ -14,8 +14,6 @@ const ENV_CODEX_MODEL_CONTEXT_WINDOW: &str = "CODEX_MODEL_CONTEXT_WINDOW";
 const ENV_CODEX_PERSONALITY_ENABLED: &str = "CODEX_PERSONALITY_ENABLED";
 const ENV_CODEX_WIRE_API: &str = "CODEX_WIRE_API";
 const DEFAULT_CUSTOM_MODEL_CONTEXT_WINDOW: i64 = 200_000;
-const OPENAI_COMPAT_MODEL_NAMESPACE: &str = "openai::";
-const OPENAI_COMPAT_PROVIDER_NAME: &str = "OpenAI Compatible";
 
 /// Runtime model/provider overrides for embedded callers.
 ///
@@ -139,18 +137,6 @@ fn parse_wire_api(raw_value: Option<&str>) -> Option<codex_model_provider_info::
     }
 }
 
-fn model_has_namespace(model: &str) -> bool {
-    model.contains("::")
-}
-
-fn openai_compatible_model_name(model: &str) -> String {
-    if model_has_namespace(model) {
-        model.to_string()
-    } else {
-        format!("{OPENAI_COMPAT_MODEL_NAMESPACE}{model}")
-    }
-}
-
 fn set_personality_enabled(config: &mut Config, enabled: bool) {
     let result = if enabled {
         config.features.enable(Feature::Personality)
@@ -248,20 +234,6 @@ fn apply_runtime_override_values(mut config: Config, overrides: RuntimeOverrideV
         .as_deref()
         .and_then(|v| parse_wire_api(Some(v)))
         .unwrap_or_default();
-    let force_openai_compatible_chat =
-        custom_provider_configured && matches!(wire_api, WireApi::Chat);
-
-    if force_openai_compatible_chat && let Some(model) = config.model.as_deref() {
-        let routed_model = openai_compatible_model_name(model.trim());
-        if routed_model != model {
-            tracing::info!(
-                model = %model,
-                routed_model = %routed_model,
-                "routing custom Chat API provider through OpenAI-compatible adapter"
-            );
-            config.model = Some(routed_model);
-        }
-    }
 
     match resolve_personality_override(
         overrides.personality_enabled.as_deref(),
@@ -303,11 +275,7 @@ fn apply_runtime_override_values(mut config: Config, overrides: RuntimeOverrideV
     }
 
     if custom_provider_configured {
-        let provider_display_name = if force_openai_compatible_chat {
-            OPENAI_COMPAT_PROVIDER_NAME.to_string()
-        } else {
-            provider_name.unwrap_or_else(|| provider_id.clone())
-        };
+        let provider_display_name = provider_name.unwrap_or_else(|| provider_id.clone());
         let env_key = if api_key.is_some() {
             None
         } else {
@@ -642,19 +610,6 @@ mod tests {
         assert_eq!(parse_wire_api(Some("CHATGPT")), None);
     }
 
-    #[test]
-    fn openai_compatible_model_name_adds_namespace_to_bare_model() {
-        assert_eq!(openai_compatible_model_name("glm-5"), "openai::glm-5");
-    }
-
-    #[test]
-    fn openai_compatible_model_name_keeps_existing_namespace() {
-        assert_eq!(
-            openai_compatible_model_name("openai::glm-5"),
-            "openai::glm-5"
-        );
-    }
-
     #[tokio::test]
     async fn runtime_overrides_sets_wire_api_to_chat() {
         let config = apply_runtime_overrides(
@@ -667,28 +622,6 @@ mod tests {
                 ..CodexRuntimeOverrides::default()
             },
         );
-        use codex_model_provider_info::WireApi;
-        assert_eq!(config.model_provider.wire_api, WireApi::Chat);
-    }
-
-    #[tokio::test]
-    async fn runtime_overrides_routes_custom_chat_provider_through_openai_compatible_adapter() {
-        let config = apply_runtime_overrides(
-            base_test_config().await,
-            CodexRuntimeOverrides {
-                model: Some("glm-5".to_string()),
-                base_url: Some("https://test-llm-proxy.nuwax.com/api/proxy/model".to_string()),
-                api_key: Some("real-key".to_string()),
-                provider_id: Some("zhipu-glm-5".to_string()),
-                provider_name: Some("zhipu-glm-5".to_string()),
-                wire_api: Some("chat".to_string()),
-                ..CodexRuntimeOverrides::default()
-            },
-        );
-
-        assert_eq!(config.model.as_deref(), Some("openai::glm-5"));
-        assert_eq!(config.model_provider_id, "zhipu-glm-5");
-        assert_eq!(config.model_provider.name, OPENAI_COMPAT_PROVIDER_NAME);
         use codex_model_provider_info::WireApi;
         assert_eq!(config.model_provider.wire_api, WireApi::Chat);
     }

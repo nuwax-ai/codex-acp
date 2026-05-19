@@ -7,7 +7,7 @@ set -euo pipefail
 
 mapfile -t codex_tags < <(
   awk '
-    /codex-/ && /https:\/\/github.com\/openai\/codex/ {
+    /codex-/ && /https:\/\/github.com\/soddygo\/codex/ {
       if (match($0, /tag = "[^"]+"/)) {
         tag = substr($0, RSTART, RLENGTH)
         sub(/^tag = "/, "", tag)
@@ -19,10 +19,10 @@ mapfile -t codex_tags < <(
 )
 
 if [[ "${#codex_tags[@]}" -ne 1 ]]; then
-  echo "Expected one OpenAI Codex git tag, found: ${codex_tags[*]:-<none>}" >&2
+  echo "Expected one Codex git tag, found: ${codex_tags[*]:-<none>}" >&2
   exit 1
 fi
-codex_tag="${codex_tags[0]}"
+codex_tag="${codex_tags[-1]}"
 
 case "${TARGET}" in
   x86_64-unknown-linux-*)
