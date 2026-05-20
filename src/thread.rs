@@ -62,8 +62,8 @@ use codex_protocol::{
         PatchApplyBeginEvent, PatchApplyEndEvent, PatchApplyStatus, PatchApplyUpdatedEvent,
         ReasoningContentDeltaEvent, ReasoningRawContentDeltaEvent, ReviewDecision,
         ReviewOutputEvent, ReviewRequest, ReviewTarget, RolloutItem, StreamErrorEvent,
-        TerminalInteractionEvent, ThreadGoalStatus, ThreadGoalUpdatedEvent, TokenCountEvent,
-        TurnAbortedEvent, TurnCompleteEvent, TurnStartedEvent, UserMessageEvent,
+        TerminalInteractionEvent, ThreadGoalStatus, ThreadGoalUpdatedEvent, ThreadSettingsOverrides,
+        TokenCountEvent, TurnAbortedEvent, TurnCompleteEvent, TurnStartedEvent, UserMessageEvent,
         ViewImageToolCallEvent, WarningEvent, WebSearchBeginEvent, WebSearchEndEvent,
     },
     request_permissions::{
@@ -782,6 +782,8 @@ fn format_thread_goal_update(event: &ThreadGoalUpdatedEvent) -> String {
         ThreadGoalStatus::Paused => "paused",
         ThreadGoalStatus::BudgetLimited => "budget limited",
         ThreadGoalStatus::Complete => "complete",
+        ThreadGoalStatus::Blocked => "blocked",
+        ThreadGoalStatus::UsageLimited => "usage limited",
     };
 
     let objective = event.goal.objective.trim();
@@ -1487,7 +1489,8 @@ impl PromptState {
             | EventMsg::CollabResumeEnd(..)
             | EventMsg::CollabCloseBegin(..)
             | EventMsg::CollabCloseEnd(..)
-            | EventMsg::PlanDelta(..)=> {}
+            | EventMsg::PlanDelta(..)
+            | EventMsg::ThreadSettingsApplied(..)=> {}
             e @ (EventMsg::RealtimeConversationListVoicesResponse(..)
             | EventMsg::DeprecationNotice(..)
             | EventMsg::RequestUserInput(..)) => {
@@ -3142,19 +3145,24 @@ impl<A: Auth> ThreadActor<A> {
         };
 
         self.thread
-            .submit(Op::OverrideTurnContext {
-                cwd: None,
-                approval_policy: None,
-                sandbox_policy: None,
-                model: Some(model_to_use.clone()),
-                effort: Some(effort_to_use),
-                summary: None,
-                collaboration_mode: None,
-                personality: None,
-                windows_sandbox_level: None,
-                service_tier: None,
-                approvals_reviewer: None,
-                permission_profile: None,
+            .submit(Op::ThreadSettings {
+                thread_settings: ThreadSettingsOverrides {
+                    cwd: None,
+                    approval_policy: None,
+                    sandbox_policy: None,
+                    model: Some(model_to_use.clone()),
+                    effort: Some(effort_to_use),
+                    summary: None,
+                    collaboration_mode: None,
+                    personality: None,
+                    windows_sandbox_level: None,
+                    service_tier: None,
+                    approvals_reviewer: None,
+                    permission_profile: None,
+                    workspace_roots: None,
+                    profile_workspace_roots: None,
+                    active_permission_profile: None,
+                },
             })
             .await
             .map_err(|e| Error::from(anyhow::anyhow!(e)))?;
@@ -3190,19 +3198,24 @@ impl<A: Auth> ThreadActor<A> {
         }
 
         self.thread
-            .submit(Op::OverrideTurnContext {
-                cwd: None,
-                approval_policy: None,
-                sandbox_policy: None,
-                model: None,
-                effort: Some(Some(effort)),
-                summary: None,
-                collaboration_mode: None,
-                personality: None,
-                windows_sandbox_level: None,
-                service_tier: None,
-                approvals_reviewer: None,
-                permission_profile: None,
+            .submit(Op::ThreadSettings {
+                thread_settings: ThreadSettingsOverrides {
+                    cwd: None,
+                    approval_policy: None,
+                    sandbox_policy: None,
+                    model: None,
+                    effort: Some(Some(effort)),
+                    summary: None,
+                    collaboration_mode: None,
+                    personality: None,
+                    windows_sandbox_level: None,
+                    service_tier: None,
+                    approvals_reviewer: None,
+                    permission_profile: None,
+                    workspace_roots: None,
+                    profile_workspace_roots: None,
+                    active_permission_profile: None,
+                },
             })
             .await
             .map_err(|e| Error::from(anyhow::anyhow!(e)))?;
@@ -3272,6 +3285,7 @@ impl<A: Auth> ThreadActor<A> {
                         final_output_json_schema: None,
                         environments: None,
                         responsesapi_client_metadata: None,
+                        thread_settings: ThreadSettingsOverrides::default(),
                     }
                 }
                 "review" => {
@@ -3324,6 +3338,7 @@ impl<A: Auth> ThreadActor<A> {
                         final_output_json_schema: None,
                         environments: None,
                         responsesapi_client_metadata: None,
+                        thread_settings: ThreadSettingsOverrides::default(),
                     }
                 }
             }
@@ -3333,6 +3348,7 @@ impl<A: Auth> ThreadActor<A> {
                 final_output_json_schema: None,
                 environments: None,
                 responsesapi_client_metadata: None,
+                thread_settings: ThreadSettingsOverrides::default(),
             }
         }
 
@@ -3364,19 +3380,24 @@ impl<A: Auth> ThreadActor<A> {
             .ok_or_else(Error::invalid_params)?;
 
         self.thread
-            .submit(Op::OverrideTurnContext {
-                cwd: None,
-                approval_policy: Some(preset.approval),
-                permission_profile: Some(preset.permission_profile.clone()),
-                sandbox_policy: None,
-                model: None,
-                effort: None,
-                summary: None,
-                collaboration_mode: None,
-                personality: None,
-                windows_sandbox_level: None,
-                service_tier: None,
-                approvals_reviewer: None,
+            .submit(Op::ThreadSettings {
+                thread_settings: ThreadSettingsOverrides {
+                    cwd: None,
+                    approval_policy: Some(preset.approval),
+                    permission_profile: Some(preset.permission_profile.clone()),
+                    sandbox_policy: None,
+                    model: None,
+                    effort: None,
+                    summary: None,
+                    collaboration_mode: None,
+                    personality: None,
+                    windows_sandbox_level: None,
+                    service_tier: None,
+                    approvals_reviewer: None,
+                    workspace_roots: None,
+                    profile_workspace_roots: None,
+                    active_permission_profile: None,
+                },
             })
             .await
             .map_err(|e| Error::from(anyhow::anyhow!(e)))?;
@@ -3425,19 +3446,24 @@ impl<A: Auth> ThreadActor<A> {
         }
 
         self.thread
-            .submit(Op::OverrideTurnContext {
-                cwd: None,
-                approval_policy: None,
-                sandbox_policy: None,
-                model: Some(model_to_use.clone()),
-                effort: Some(effort_to_use),
-                summary: None,
-                collaboration_mode: None,
-                personality: None,
-                windows_sandbox_level: None,
-                service_tier: None,
-                approvals_reviewer: None,
-                permission_profile: None,
+            .submit(Op::ThreadSettings {
+                thread_settings: ThreadSettingsOverrides {
+                    cwd: None,
+                    approval_policy: None,
+                    sandbox_policy: None,
+                    model: Some(model_to_use.clone()),
+                    effort: Some(effort_to_use),
+                    summary: None,
+                    collaboration_mode: None,
+                    personality: None,
+                    windows_sandbox_level: None,
+                    service_tier: None,
+                    approvals_reviewer: None,
+                    permission_profile: None,
+                    workspace_roots: None,
+                    profile_workspace_roots: None,
+                    active_permission_profile: None,
+                },
             })
             .await
             .map_err(|e| Error::from(anyhow::anyhow!(e)))?;
@@ -4617,6 +4643,7 @@ mod tests {
                 final_output_json_schema: None,
                 environments: None,
                 responsesapi_client_metadata: None,
+                thread_settings: ThreadSettingsOverrides::default(),
             }],
             "ops don't match {ops:?}"
         );
