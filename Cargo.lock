@@ -1603,7 +1603,7 @@ checksum = "e9b18233253483ce2f65329a24072ec414db782531bdbb7d0bbc4bd2ce6b7e21"
 [[package]]
 name = "codex-agent-identity"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "base64",
@@ -1622,7 +1622,7 @@ dependencies = [
 [[package]]
 name = "codex-analytics"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "codex-app-server-protocol",
  "codex-git-utils",
@@ -1641,7 +1641,7 @@ dependencies = [
 [[package]]
 name = "codex-api"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "async-channel",
  "async-trait",
@@ -1670,7 +1670,7 @@ dependencies = [
 [[package]]
 name = "codex-app-server-protocol"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "clap",
@@ -1694,7 +1694,7 @@ dependencies = [
 [[package]]
 name = "codex-apply-patch"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "codex-exec-server",
@@ -1709,7 +1709,7 @@ dependencies = [
 [[package]]
 name = "codex-arg0"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "codex-apply-patch",
@@ -1727,7 +1727,7 @@ dependencies = [
 [[package]]
 name = "codex-async-utils"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "async-trait",
  "tokio",
@@ -1737,7 +1737,7 @@ dependencies = [
 [[package]]
 name = "codex-aws-auth"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "aws-config",
  "aws-credential-types",
@@ -1751,7 +1751,7 @@ dependencies = [
 [[package]]
 name = "codex-client"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "async-trait",
  "bytes",
@@ -1777,7 +1777,7 @@ dependencies = [
 [[package]]
 name = "codex-code-mode"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "async-channel",
  "async-trait",
@@ -1794,12 +1794,12 @@ dependencies = [
 [[package]]
 name = "codex-collaboration-mode-templates"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 
 [[package]]
 name = "codex-config"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1843,7 +1843,7 @@ dependencies = [
 [[package]]
 name = "codex-connectors"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "codex-app-server-protocol",
@@ -1857,7 +1857,7 @@ dependencies = [
 [[package]]
 name = "codex-core"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -1957,7 +1957,7 @@ dependencies = [
 [[package]]
 name = "codex-core-plugins"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1994,7 +1994,7 @@ dependencies = [
 [[package]]
 name = "codex-core-skills"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "codex-analytics",
@@ -2024,7 +2024,7 @@ dependencies = [
 [[package]]
 name = "codex-exec-server"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "arc-swap",
  "async-trait",
@@ -2057,7 +2057,7 @@ dependencies = [
 [[package]]
 name = "codex-execpolicy"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "clap",
@@ -2073,7 +2073,7 @@ dependencies = [
 [[package]]
 name = "codex-experimental-api-macros"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2083,7 +2083,7 @@ dependencies = [
 [[package]]
 name = "codex-extension-api"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "async-trait",
  "codex-protocol",
@@ -2093,7 +2093,7 @@ dependencies = [
 [[package]]
 name = "codex-features"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "codex-otel",
  "codex-protocol",
@@ -2106,7 +2106,7 @@ dependencies = [
 [[package]]
 name = "codex-feedback"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "codex-login",
@@ -2119,7 +2119,7 @@ dependencies = [
 [[package]]
 name = "codex-file-search"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "clap",
@@ -2134,7 +2134,7 @@ dependencies = [
 [[package]]
 name = "codex-file-system"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "async-trait",
  "codex-protocol",
@@ -2145,7 +2145,7 @@ dependencies = [
 [[package]]
 name = "codex-git-utils"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "chrono",
@@ -2169,7 +2169,7 @@ dependencies = [
 [[package]]
 name = "codex-hooks"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "chrono",
@@ -2191,7 +2191,7 @@ dependencies = [
 [[package]]
 name = "codex-keyring-store"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "keyring",
  "tracing",
@@ -2200,7 +2200,7 @@ dependencies = [
 [[package]]
 name = "codex-linux-sandbox"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "clap",
  "codex-process-hardening",
@@ -2220,7 +2220,7 @@ dependencies = [
 [[package]]
 name = "codex-login"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "async-trait",
  "base64",
@@ -2254,7 +2254,7 @@ dependencies = [
 [[package]]
 name = "codex-mcp"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "async-channel",
@@ -2285,7 +2285,7 @@ dependencies = [
 [[package]]
 name = "codex-mcp-server"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "codex-arg0",
@@ -2310,7 +2310,7 @@ dependencies = [
 [[package]]
 name = "codex-memories-read"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "codex-protocol",
  "codex-shell-command",
@@ -2323,7 +2323,7 @@ dependencies = [
 [[package]]
 name = "codex-model-provider"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "async-trait",
  "codex-agent-identity",
@@ -2345,7 +2345,7 @@ dependencies = [
 [[package]]
 name = "codex-model-provider-info"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "codex-api",
  "codex-app-server-protocol",
@@ -2358,7 +2358,7 @@ dependencies = [
 [[package]]
 name = "codex-models-manager"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "async-trait",
  "chrono",
@@ -2378,7 +2378,7 @@ dependencies = [
 [[package]]
 name = "codex-network-proxy"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2408,7 +2408,7 @@ dependencies = [
 [[package]]
 name = "codex-otel"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "chrono",
  "codex-api",
@@ -2440,7 +2440,7 @@ dependencies = [
 [[package]]
 name = "codex-plugin"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "codex-config",
  "codex-utils-absolute-path",
@@ -2451,7 +2451,7 @@ dependencies = [
 [[package]]
 name = "codex-process-hardening"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "libc",
 ]
@@ -2459,7 +2459,7 @@ dependencies = [
 [[package]]
 name = "codex-protocol"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "chardetng",
  "chrono",
@@ -2496,7 +2496,7 @@ dependencies = [
 [[package]]
 name = "codex-response-debug-context"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "base64",
  "codex-api",
@@ -2507,7 +2507,7 @@ dependencies = [
 [[package]]
 name = "codex-rmcp-client"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "axum",
@@ -2542,7 +2542,7 @@ dependencies = [
 [[package]]
 name = "codex-rollout"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2566,7 +2566,7 @@ dependencies = [
 [[package]]
 name = "codex-rollout-trace"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "codex-code-mode",
@@ -2581,7 +2581,7 @@ dependencies = [
 [[package]]
 name = "codex-rust-genai-bridge"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "codex-api",
  "codex-protocol",
@@ -2597,7 +2597,7 @@ dependencies = [
 [[package]]
 name = "codex-sandboxing"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "codex-network-proxy",
  "codex-protocol",
@@ -2614,7 +2614,7 @@ dependencies = [
 [[package]]
 name = "codex-shell-command"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "base64",
  "codex-protocol",
@@ -2633,7 +2633,7 @@ dependencies = [
 [[package]]
 name = "codex-shell-escalation"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2653,7 +2653,7 @@ dependencies = [
 [[package]]
 name = "codex-skills"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "codex-utils-absolute-path",
  "include_dir",
@@ -2663,7 +2663,7 @@ dependencies = [
 [[package]]
 name = "codex-state"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "chrono",
@@ -2685,7 +2685,7 @@ dependencies = [
 [[package]]
 name = "codex-terminal-detection"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "tracing",
 ]
@@ -2693,7 +2693,7 @@ dependencies = [
 [[package]]
 name = "codex-thread-store"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "async-trait",
  "chrono",
@@ -2712,7 +2712,7 @@ dependencies = [
 [[package]]
 name = "codex-tools"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "async-trait",
  "codex-app-server-protocol",
@@ -2732,7 +2732,7 @@ dependencies = [
 [[package]]
 name = "codex-utils-absolute-path"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "dirs",
  "dunce",
@@ -2744,7 +2744,7 @@ dependencies = [
 [[package]]
 name = "codex-utils-approval-presets"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "codex-protocol",
 ]
@@ -2752,7 +2752,7 @@ dependencies = [
 [[package]]
 name = "codex-utils-cache"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "lru",
  "sha1",
@@ -2762,7 +2762,7 @@ dependencies = [
 [[package]]
 name = "codex-utils-cli"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "clap",
  "codex-protocol",
@@ -2774,7 +2774,7 @@ dependencies = [
 [[package]]
 name = "codex-utils-home-dir"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "codex-utils-absolute-path",
  "dirs",
@@ -2783,7 +2783,7 @@ dependencies = [
 [[package]]
 name = "codex-utils-image"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "base64",
  "codex-utils-cache",
@@ -2796,7 +2796,7 @@ dependencies = [
 [[package]]
 name = "codex-utils-json-to-toml"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "serde_json",
  "toml 0.9.12+spec-1.1.0",
@@ -2805,7 +2805,7 @@ dependencies = [
 [[package]]
 name = "codex-utils-output-truncation"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "codex-protocol",
  "codex-utils-string",
@@ -2814,7 +2814,7 @@ dependencies = [
 [[package]]
 name = "codex-utils-path"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "codex-utils-absolute-path",
  "dunce",
@@ -2824,7 +2824,7 @@ dependencies = [
 [[package]]
 name = "codex-utils-plugins"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "codex-exec-server",
  "codex-login",
@@ -2836,7 +2836,7 @@ dependencies = [
 [[package]]
 name = "codex-utils-pty"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "filedescriptor",
@@ -2852,7 +2852,7 @@ dependencies = [
 [[package]]
 name = "codex-utils-rustls-provider"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "rustls",
 ]
@@ -2860,12 +2860,12 @@ dependencies = [
 [[package]]
 name = "codex-utils-stream-parser"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 
 [[package]]
 name = "codex-utils-string"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "regex-lite",
  "serde",
@@ -2875,12 +2875,12 @@ dependencies = [
 [[package]]
 name = "codex-utils-template"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 
 [[package]]
 name = "codex-windows-sandbox"
 version = "0.0.0"
-source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.3#447a1048aad74b015f54f8507988a94da4d59e8c"
+source = "git+https://github.com/nuwax-ai/codex.git?tag=codex-1.0.5#e097a3a83a7327391c9c445383c74a03bc48dcc5"
 dependencies = [
  "anyhow",
  "base64",
@@ -4344,7 +4344,7 @@ dependencies = [
 [[package]]
 name = "genai"
 version = "0.6.0-beta.21-WIP"
-source = "git+https://github.com/soddygo/rust-genai.git?branch=dev#594f028f686fbc5d2fe5a0915857f4a04c83aeb3"
+source = "git+https://github.com/soddygo/rust-genai.git?branch=dev#a7db196a4b9efc389bb211b13d32491b32ea719f"
 dependencies = [
  "base64",
  "bytes",
