@@ -1,0 +1,8 @@
+FROM rust:1.95
+
+WORKDIR /build
+
+# Test install with --locked
+RUN cargo install --locked --git https://github.com/nuwax-ai/codex-acp.git --branch test
+
+ENTRYPOINT ["nuwax-codex-acp"]
