@@ -298,3 +298,58 @@ jobs:
             artifacts/**/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-npm:
+    name: Publish to npm
+    needs: [get-version, create-release]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v5
+        with:
+          path: artifacts
+
+      - name: Flatten artifacts directory
+        run: |
+          mkdir -p flat-artifacts
+          find artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" \) -exec cp {} flat-artifacts/ \;
+          ls -la flat-artifacts/
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Create platform packages
+        env:
+          VERSION: ${{ needs.get-version.outputs.version }}
+        run: |
+          bash npm/publish/create-platform-packages.sh flat-artifacts npm-platform-packages "$VERSION"
+
+      - name: Update base package version
+        env:
+          VERSION: ${{ needs.get-version.outputs.version }}
+        run: |
+          bash npm/publish/update-base-package.sh "$VERSION"
+
+      - name: Publish platform packages to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          for pkg in npm-platform-packages/*/; do
+            echo "Publishing $(basename $pkg)..."
+            cd "$pkg"
+            npm publish --access public
+            cd -
+          done
+
+      - name: Publish main package to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          cd npm
+          npm publish --access public

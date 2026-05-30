@@ -24,7 +24,7 @@ check_command grep
 
 # 1. Validate wrapper script syntax
 echo "1. Validating wrapper script syntax..."
-if node -c npm/bin/codex-acp.js 2>/dev/null; then
+if node -c npm/bin/nuwax-codex-acp.js 2>/dev/null; then
   echo -e "${GREEN}✓ Wrapper script syntax is valid${NC}"
 else
   echo -e "${RED}✗ Wrapper script has syntax errors${NC}"
@@ -76,12 +76,14 @@ echo
 # 5. Verify optional dependencies list
 echo "5. Verifying platform packages..."
 EXPECTED_PACKAGES=(
-  "@zed-industries/codex-acp-darwin-arm64"
-  "@zed-industries/codex-acp-darwin-x64"
-  "@zed-industries/codex-acp-linux-arm64"
-  "@zed-industries/codex-acp-linux-x64"
-  "@zed-industries/codex-acp-win32-arm64"
-  "@zed-industries/codex-acp-win32-x64"
+  "nuwax-codex-acp-darwin-arm64"
+  "nuwax-codex-acp-darwin-x64"
+  "nuwax-codex-acp-linux-arm64"
+  "nuwax-codex-acp-linux-arm64-musl"
+  "nuwax-codex-acp-linux-x64"
+  "nuwax-codex-acp-linux-x64-musl"
+  "nuwax-codex-acp-win32-arm64"
+  "nuwax-codex-acp-win32-x64"
 )
 
 missing_packages=0

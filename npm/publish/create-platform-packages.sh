@@ -18,19 +18,20 @@ echo
 
 mkdir -p "$OUTPUT_DIR"
 
-# Define platform mappings: target -> (npm-os, npm-arch, binary-extension)
-# Note: We only package gnu variants for Linux
+# Define platform mappings: target -> (npm-os:npm-arch:binary-ext:name-suffix)
 declare -A platforms=(
-  ["aarch64-apple-darwin"]="darwin arm64 "
-  ["x86_64-apple-darwin"]="darwin x64 "
-  ["x86_64-unknown-linux-gnu"]="linux x64 "
-  ["aarch64-unknown-linux-gnu"]="linux arm64 "
-  ["x86_64-pc-windows-msvc"]="win32 x64 .exe"
-  ["aarch64-pc-windows-msvc"]="win32 arm64 .exe"
+  ["aarch64-apple-darwin"]="darwin:arm64::"
+  ["x86_64-apple-darwin"]="darwin:x64::"
+  ["x86_64-unknown-linux-gnu"]="linux:x64::"
+  ["aarch64-unknown-linux-gnu"]="linux:arm64::"
+  ["x86_64-unknown-linux-musl"]="linux:x64::-musl"
+  ["aarch64-unknown-linux-musl"]="linux:arm64::-musl"
+  ["x86_64-pc-windows-msvc"]="win32:x64:.exe:"
+  ["aarch64-pc-windows-msvc"]="win32:arm64:.exe:"
 )
 
 for target in "${!platforms[@]}"; do
-  read os arch ext <<< "${platforms[$target]}"
+  IFS=':' read -r os arch ext suffix <<< "${platforms[$target]}"
 
   # Determine archive extension
   if [[ "$os" == "win32" ]]; then
@@ -49,16 +50,16 @@ for target in "${!platforms[@]}"; do
 
   echo "📦 Processing $target from $(basename "$archive_path")"
 
-  # Create package name
-  pkg_name="codex-acp-${os}-${arch}"
+  # Create package name (includes -musl suffix for musl variants)
+  pkg_name="nuwax-codex-acp-${os}-${arch}${suffix}"
   pkg_dir="$OUTPUT_DIR/${pkg_name}"
   mkdir -p "${pkg_dir}/bin"
 
   # Extract binary
   if [[ "$archive_ext" == "zip" ]]; then
-    unzip -q -j "$archive_path" "codex-acp${ext}" -d "${pkg_dir}/bin/"
+    unzip -q -j "$archive_path" "nuwax-codex-acp${ext}" -d "${pkg_dir}/bin/"
   else
-    tar xzf "$archive_path" -C "${pkg_dir}/bin/" "codex-acp${ext}"
+    tar xzf "$archive_path" -C "${pkg_dir}/bin/" "nuwax-codex-acp${ext}"
   fi
 
   if [[ "$os" == "linux" ]]; then
@@ -72,7 +73,7 @@ for target in "${!platforms[@]}"; do
   fi
 
   # Make binary executable (important for Unix-like systems)
-  chmod +x "${pkg_dir}/bin/codex-acp${ext}" 2>/dev/null || echo "Failed to make binary executable"
+  chmod +x "${pkg_dir}/bin/nuwax-codex-acp${ext}" 2>/dev/null || echo "Failed to make binary executable"
 
   # Create package.json from template
   export PACKAGE_NAME="$pkg_name"
@@ -85,13 +86,6 @@ for target in "${!platforms[@]}"; do
   TEMPLATE_PATH="$SCRIPT_DIR/../template/package.json"
 
   envsubst < "$TEMPLATE_PATH" > "${pkg_dir}/package.json"
-
-  # Update bin field for Windows to include .exe extension
-  if [[ "$os" == "win32" ]]; then
-    # Use sed to update the bin path in package.json
-    sed -i.bak 's|"bin/codex-acp"|"bin/codex-acp.exe"|' "${pkg_dir}/package.json"
-    rm "${pkg_dir}/package.json.bak"
-  fi
 
   echo "   ✓ Created package: ${pkg_name}"
 done
