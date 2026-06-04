@@ -120,17 +120,30 @@ impl ClientSender for AcpConnection {
 
 static APPROVAL_PRESETS: LazyLock<Vec<ApprovalPreset>> = LazyLock::new(builtin_approval_presets);
 const INIT_COMMAND_PROMPT: &str = include_str!("./prompt_for_init_command.md");
-const CODEX_READ_ONLY_PROFILE_ID: &str = ":read-only";
-const CODEX_WORKSPACE_PROFILE_ID: &str = ":workspace";
-const CODEX_DANGER_NO_SANDBOX_PROFILE_ID: &str = ":danger-no-sandbox";
 
-fn session_mode_id_for_active_profile(profile_id: &str) -> Option<&'static str> {
-    match profile_id {
-        CODEX_READ_ONLY_PROFILE_ID => Some("read-only"),
-        CODEX_WORKSPACE_PROFILE_ID => Some("auto"),
-        CODEX_DANGER_NO_SANDBOX_PROFILE_ID => Some("full-access"),
-        _ => None,
+fn session_mode_id_for_active_profile(
+    profile_id: &str,
+    config: &Config,
+) -> Option<&'static str> {
+    // Find all presets that match this active profile, then pick the one
+    // whose approval policy matches the current config. This correctly
+    // distinguishes "ask" (OnRequest) from "full-access" (Never) when
+    // both share the same :danger-full-access profile.
+    let matching_presets: Vec<&ApprovalPreset> = APPROVAL_PRESETS
+        .iter()
+        .filter(|p| p.active_permission_profile.id == profile_id)
+        .collect();
+
+    if matching_presets.is_empty() {
+        return None;
     }
+
+    // Prefer the preset whose approval matches the current config.
+    matching_presets
+        .iter()
+        .find(|p| approval_matches_current_config(p, config))
+        .map(|p| p.id)
+        .or_else(|| matching_presets.first().map(|p| p.id))
 }
 
 fn approval_matches_current_config(preset: &ApprovalPreset, config: &Config) -> bool {
@@ -179,15 +192,25 @@ fn semantic_session_mode_id_for_permission_profile(config: &Config) -> Option<&'
                 None
             }
         }
-        PermissionProfile::Disabled => Some("full-access"),
+        PermissionProfile::Disabled => {
+            // "ask" and "full-access" both use Disabled; pick based on approval.
+            let approval = config.permissions.approval_policy.value();
+            if std::mem::discriminant(&approval)
+                == std::mem::discriminant(&codex_protocol::protocol::AskForApproval::OnRequest)
+            {
+                Some("ask")
+            } else {
+                Some("full-access")
+            }
+        }
         PermissionProfile::External { .. } => None,
     }
 }
 
 fn current_session_mode_id(config: &Config) -> Option<SessionModeId> {
     if let Some(active_profile) = config.permissions.active_permission_profile().as_ref() {
-        return session_mode_id_for_active_profile(&active_profile.id)
-            .and_then(|mode_id| mode_id_if_approval_matches(mode_id, config))
+        return session_mode_id_for_active_profile(&active_profile.id, config)
+            .map(SessionModeId::new)
             .or_else(|| untrusted_read_only_mode_id(config));
     }
 
@@ -204,7 +227,7 @@ fn current_session_mode_id(config: &Config) -> Option<SessionModeId> {
 }
 
 fn mode_trusts_project(mode_id: &str) -> bool {
-    matches!(mode_id, "auto" | "full-access")
+    matches!(mode_id, "auto" | "full-access" | "ask")
 }
 
 /// Trait for abstracting over the `CodexThread` to make testing easier.
@@ -3396,7 +3419,9 @@ impl<A: Auth> ThreadActor<A> {
                     approvals_reviewer: None,
                     workspace_roots: None,
                     profile_workspace_roots: None,
-                    active_permission_profile: None,
+                    active_permission_profile: Some(
+                        preset.active_permission_profile.clone(),
+                    ),
                 },
             })
             .await
@@ -4525,6 +4550,7 @@ mod tests {
         assert!(!mode_trusts_project("read-only"));
         assert!(mode_trusts_project("auto"));
         assert!(mode_trusts_project("full-access"));
+        assert!(mode_trusts_project("ask"));
     }
 
     #[test]
