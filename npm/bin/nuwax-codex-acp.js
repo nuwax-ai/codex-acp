@@ -3,7 +3,8 @@
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { isMusl } from "detect-libc";
+import pkg from "detect-libc";
+const { isMusl } = pkg;
 
 // Map Node.js platform/arch to package names
 function getPlatformPackage() {
