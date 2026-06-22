@@ -1,6 +1,6 @@
 {
   "name": "nuwax-codex-acp",
-  "version": "0.15.18",
+  "version": "0.16.0",
   "type": "module",
   "description": "An ACP-compatible coding agent powered by Codex, with domestic (Chinese) LLM support",
   "license": "Apache-2.0",
@@ -32,13 +32,13 @@
     "detect-libc": "^2.0.0"
   },
   "optionalDependencies": {
-    "nuwax-codex-acp-darwin-arm64": "0.15.18",
-    "nuwax-codex-acp-darwin-x64": "0.15.18",
-    "nuwax-codex-acp-linux-arm64": "0.15.18",
-    "nuwax-codex-acp-linux-arm64-musl": "0.15.18",
-    "nuwax-codex-acp-linux-x64": "0.15.18",
-    "nuwax-codex-acp-linux-x64-musl": "0.15.18",
-    "nuwax-codex-acp-win32-arm64": "0.15.18",
-    "nuwax-codex-acp-win32-x64": "0.15.18"
+    "nuwax-codex-acp-darwin-arm64": "0.16.0",
+    "nuwax-codex-acp-darwin-x64": "0.16.0",
+    "nuwax-codex-acp-linux-arm64": "0.16.0",
+    "nuwax-codex-acp-linux-arm64-musl": "0.16.0",
+    "nuwax-codex-acp-linux-x64": "0.16.0",
+    "nuwax-codex-acp-linux-x64-musl": "0.16.0",
+    "nuwax-codex-acp-win32-arm64": "0.16.0",
+    "nuwax-codex-acp-win32-x64": "0.16.0"
   }
 }

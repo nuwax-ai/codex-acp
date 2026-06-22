@@ -1,6 +1,6 @@
 [package]
 name = "nuwax-codex-acp"
-version = "0.15.18"
+version = "0.16.0"
 edition = "2024"
 authors = ["soddygo <soddygo@qq.com>", "Zed <hi@zed.dev>"]
 license = "Apache-2.0"
@@ -18,36 +18,27 @@ name = "nuwax_codex_acp"
 path = "src/lib.rs"
 
 [dependencies]
-agent-client-protocol = { version = "=0.11.1", features = ["unstable"] }
+agent-client-protocol = { version = "=0.14.0", features = ["unstable"] }
 anyhow = "1"
 clap = "4"
-codex-apply-patch = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.7", subdirectory = "codex-rs/apply-patch" }
-codex-arg0 = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.7", subdirectory = "codex-rs/arg0" }
-codex-config = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.7", subdirectory = "codex-rs/config" }
-codex-core = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.7", subdirectory = "codex-rs/core", features = ["rust-genai"] }
-codex-features = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.7", subdirectory = "codex-rs/features" }
-codex-model-provider-info = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.7", subdirectory = "codex-rs/model-provider-info" }
-codex-exec-server = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.7", subdirectory = "codex-rs/exec-server" }
-codex-extension-api = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.7", subdirectory = "codex-rs/ext/extension-api" }
-codex-mcp-server = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.7", subdirectory = "codex-rs/mcp-server" }
-codex-models-manager = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.7", subdirectory = "codex-rs/models-manager" }
-codex-protocol = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.7", subdirectory = "codex-rs/protocol" }
-codex-login = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.7", subdirectory = "codex-rs/login" }
-codex-shell-command = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.7", subdirectory = "codex-rs/shell-command" }
-codex-utils-approval-presets = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.7", subdirectory = "codex-rs/utils/approval-presets" }
-codex-utils-cli = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.7", subdirectory = "codex-rs/utils/cli" }
+codex-apply-patch = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/apply-patch" }
+codex-arg0 = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/arg0" }
+codex-config = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/config" }
+codex-core = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/core", features = ["rust-genai"] }
+codex-features = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/features" }
+codex-model-provider-info = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/model-provider-info" }
+codex-exec-server = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/exec-server" }
+codex-extension-api = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/ext/extension-api" }
+codex-mcp-server = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/mcp-server" }
+codex-models-manager = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/models-manager" }
+codex-protocol = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/protocol" }
+codex-login = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/login" }
+codex-shell-command = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/shell-command" }
+codex-thread-store = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/thread-store" }
+codex-utils-approval-presets = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/utils/approval-presets" }
+codex-utils-cli = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/utils/cli" }
 diffy = { version = "0.5.0", features = ["std"] }
-# Pin gix-actor to 0.40.0 because 0.40.1 bumped winnow to 1.0 in what is
-# technically a patch release, which makes it incompatible with gix-object
-# 0.58.0 (reached transitively via gix 0.81.0 -> codex-git-utils). Both crates
-# expose winnow types in their public APIs, so they must agree on the winnow
-# major version. Remove this pin once gix-object publishes a release compatible
-# with winnow 1.0 and the rest of the gix stack has picked it up.
-gix-actor = "=0.40.0"
-# codex 1.0.3 uses v8 147.4.0 which requires temporal_capi ^0.2.3 -> icu_calendar ^2.2
-icu_calendar = "~2.2"
 itertools = "0.14.0"
-regex-lite = "0.1"
 serde = { version = "1", features = ["derive"] }
 # codex-cli depends on codex-tui, which enables serde_json/preserve_order; match
 # that behavior here because it affects MCP keychain account hashing.
@@ -70,8 +61,9 @@ unused = "warn"
 [patch.crates-io]
 tokio-tungstenite = { git = "https://github.com/openai-oss-forks/tokio-tungstenite", rev = "132f5b39c862e3a970f731d709608b3e6276d5f6" }
 tungstenite = { git = "https://github.com/openai-oss-forks/tungstenite-rs", rev = "9200079d3b54a1ff51072e24d81fd354f085156f" }
-allocative = { git = "https://github.com/facebookexperimental/allocative", tag = "v0.3.4" }
+
+[patch."https://github.com/nuwax-ai/codex.git"]
+codex-utils-pty = { path = "vendor/codex-utils-pty" }
 
 [dev-dependencies]
-agent-client-protocol-tokio = "0.11.1"
 dirs = "6"

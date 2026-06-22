@@ -1,5 +1,11 @@
 # ACP adapter for Codex
 
+> [!IMPORTANT]
+> Development is moving to [agentclientprotocol/codex-acp](https://github.com/agentclientprotocol/codex-acp).
+> The new adapter is built on the new Codex App Server, and we are pooling implementation
+> and maintenance work across teams there. Use `@agentclientprotocol/codex-acp`
+> for new installs.
+
 Use [Codex](https://github.com/openai/codex) from [ACP-compatible](https://agentclientprotocol.com) clients such as [Zed](https://zed.dev)!
 
 This tool implements an ACP adapter around the Codex CLI, supporting:
@@ -17,7 +23,6 @@ This tool implements an ACP adapter around the Codex CLI, supporting:
   - /init
   - /compact
   - /logout
-  - Custom Prompts
 - Client MCP servers
 - Auth Methods:
   - ChatGPT subscription (requires paid subscription and doesn't work in remote projects)
