@@ -3359,37 +3359,6 @@ impl<A: Auth> ThreadActor<A> {
         self.models_manager.get_model(&self.config.model).await
     }
 
-    async fn handle_set_model(&mut self, model: String) -> Result<(), Error> {
-        // Use the model string as-is, fallback to config
-        let model_to_use = if !model.is_empty() {
-            model
-        } else {
-            self.get_current_model().await
-        };
-        let effort_to_use = self.config.model_reasoning_effort.clone();
-
-        if model_to_use.is_empty() {
-            return Err(Error::invalid_params().data("No model parsed or configured"));
-        }
-
-        self.thread
-            .submit(Op::ThreadSettings {
-                thread_settings: ThreadSettingsOverrides {
-                    model: Some(model_to_use.clone()),
-                    effort: Some(effort_to_use.clone()),
-                    ..Default::default()
-                },
-            })
-            .await
-            .map_err(|e| Error::from(anyhow::anyhow!(e)))?;
-
-        self.config.model = Some(model_to_use);
-        self.config.model_reasoning_effort = effort_to_use;
-
-        Ok(())
-    }
-
-
     async fn handle_cancel(&mut self) -> Result<(), Error> {
         self.detach_pending_interactions();
         self.thread
