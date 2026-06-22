@@ -1,14 +1,13 @@
-name: Release
+name: Release Beta
 
 on:
   push:
     tags:
-      - "v*"
-      - "!v*beta*"
+      - "v*beta*"
   workflow_dispatch:
     inputs:
       tag_name:
-        description: "Tag name for release (optional - uses version from Cargo.toml if not specified)"
+        description: "Tag name for beta release (e.g. v0.16.0-beta.1)"
         required: false
         type: string
 
@@ -148,8 +147,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # denoland/rusty_v8 does not publish musl prebuilts; use the ones
-          # hosted on the upstream openai/codex releases instead.
           version=$(python3 -c "
           import tomllib, pathlib
           lock = tomllib.loads(pathlib.Path('Cargo.lock').read_text())
@@ -195,11 +192,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # Clear global Rust flags so host/proc-macro builds don't pull in UBSan.
           echo "RUSTFLAGS=" >> "$GITHUB_ENV"
           echo "CARGO_ENCODED_RUSTFLAGS=" >> "$GITHUB_ENV"
           echo "RUSTDOCFLAGS=" >> "$GITHUB_ENV"
-          # Override any runner-level Cargo config rustflags as well.
           echo "CARGO_BUILD_RUSTFLAGS=" >> "$GITHUB_ENV"
           echo "CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS=" >> "$GITHUB_ENV"
           echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUSTFLAGS=" >> "$GITHUB_ENV"
@@ -218,11 +213,6 @@ jobs:
           cxxflags="$(sanitize_flags "${CXXFLAGS-}")"
           echo "CFLAGS=${cflags}" >> "$GITHUB_ENV"
           echo "CXXFLAGS=${cxxflags}" >> "$GITHUB_ENV"
-
-          # aws-lc-sys's jitterentropy C code picks up runner-injected
-          # UBSan flags through cmake in ways that are hard to fully
-          # suppress.  Disable jitterentropy entirely — the codex Bazel
-          # build does the same (see MODULE.bazel).
           echo "AWS_LC_SYS_NO_JITTER_ENTROPY=1" >> "$GITHUB_ENV"
 
       - name: Install bundled bwrap (Linux)
@@ -270,7 +260,7 @@ jobs:
           retention-days: 1
 
   create-release:
-    name: Create Release
+    name: Create Pre-Release
     needs: [get-version, build]
     runs-on: ubuntu-latest
 
@@ -285,14 +275,14 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -la artifacts/
 
-      - name: Create Release
+      - name: Create Pre-Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ needs.get-version.outputs.tag_name }}
-          name: Release ${{ needs.get-version.outputs.version }}
+          name: "Beta Release ${{ needs.get-version.outputs.version }}"
           draft: false
-          prerelease: false
+          prerelease: true
           generate_release_notes: true
           files: |
             artifacts/**/*.tar.gz
@@ -301,7 +291,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish-npm:
-    name: Publish to npm
+    name: Publish to npm (@beta)
     needs: [get-version, create-release]
     runs-on: ubuntu-latest
 
@@ -337,20 +327,20 @@ jobs:
         run: |
           bash npm/publish/update-base-package.sh "$VERSION"
 
-      - name: Publish platform packages to npm
+      - name: Publish platform packages to npm (@beta)
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           for pkg in npm-platform-packages/*/; do
-            echo "Publishing $(basename $pkg) with @latest tag..."
+            echo "Publishing $(basename $pkg) with @beta tag..."
             cd "$pkg"
-            npm publish --access public --tag latest
+            npm publish --access public --tag beta
             cd -
           done
 
-      - name: Publish main package to npm
+      - name: Publish main package to npm (@beta)
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           cd npm
-          npm publish --access public --tag latest
+          npm publish --access public --tag beta
