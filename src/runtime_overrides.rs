@@ -664,7 +664,7 @@ mod tests {
     #[tokio::test]
     async fn disable_thinking_false_does_not_change_reasoning_effort() {
         let base_config = base_test_config().await;
-        let base_effort = base_config.model_reasoning_effort;
+        let base_effort = base_config.model_reasoning_effort.clone();
 
         let config = apply_runtime_override_values(
             base_config,
@@ -680,7 +680,7 @@ mod tests {
     #[tokio::test]
     async fn disable_thinking_invalid_value_is_ignored() {
         let base_config = base_test_config().await;
-        let base_effort = base_config.model_reasoning_effort;
+        let base_effort = base_config.model_reasoning_effort.clone();
 
         let config = apply_runtime_override_values(
             base_config,

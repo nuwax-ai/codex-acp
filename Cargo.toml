@@ -37,6 +37,7 @@ codex-shell-command = { git = "https://github.com/nuwax-ai/codex.git", tag = "co
 codex-thread-store = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/thread-store" }
 codex-utils-approval-presets = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/utils/approval-presets" }
 codex-utils-cli = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/utils/cli" }
+codex-utils-path-uri = { git = "https://github.com/nuwax-ai/codex.git", tag = "codex-1.0.8", subdirectory = "codex-rs/utils/path-uri" }
 diffy = { version = "0.5.0", features = ["std"] }
 itertools = "0.14.0"
 serde = { version = "1", features = ["derive"] }
