@@ -28,16 +28,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Get version from Cargo.toml
+      - name: Get version from tag
         id: get_version
         run: |
-          VERSION=$(grep -m1 "^version" Cargo.toml | sed 's/.*"\(.*\)".*/\1/')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          # Beta 版本号从 tag 名提取，避免与 @latest 的 Cargo.toml 版本号冲突
+          # npm 要求版本号唯一：v0.16.0-beta.1 → 0.16.0-beta.1
           if [ -n "${{ github.event.inputs.tag_name }}" ]; then
-            echo "tag_name=${{ github.event.inputs.tag_name }}" >> $GITHUB_OUTPUT
+            TAG_NAME="${{ github.event.inputs.tag_name }}"
           else
-            echo "tag_name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
           fi
+          # 去掉前缀 v 得到合法的 npm semver 版本号
+          VERSION="${TAG_NAME#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
 
   build:
     name: Build - ${{ matrix.os }}
