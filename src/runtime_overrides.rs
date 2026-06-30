@@ -2,6 +2,7 @@ use codex_core::config::Config;
 use codex_features::Feature;
 use codex_model_provider_info::ModelProviderInfo;
 use codex_protocol::config_types::Personality;
+use codex_protocol::openai_models::ReasoningEffort;
 
 /// Environment variable names for agent configuration.
 /// These allow configuring different LLM providers per process.
@@ -13,6 +14,14 @@ const ENV_CODEX_PROVIDER_NAME: &str = "CODEX_PROVIDER_NAME";
 const ENV_CODEX_MODEL_CONTEXT_WINDOW: &str = "CODEX_MODEL_CONTEXT_WINDOW";
 const ENV_CODEX_PERSONALITY_ENABLED: &str = "CODEX_PERSONALITY_ENABLED";
 const ENV_CODEX_WIRE_API: &str = "CODEX_WIRE_API";
+const ENV_CODEX_DISABLE_THINKING: &str = "CODEX_DISABLE_THINKING";
+
+/// OPENAI-compatible fallback environment variables.
+/// When a CODEX_* variable is not set, these are checked as alternatives.
+const ENV_OPENAI_MODEL: &str = "OPENAI_MODEL";
+const ENV_OPENAI_BASE_URL: &str = "OPENAI_BASE_URL";
+const ENV_OPENAI_API_KEY: &str = "OPENAI_API_KEY";
+const ENV_DISABLE_THINKING: &str = "DISABLE_THINKING";
 const DEFAULT_CUSTOM_MODEL_CONTEXT_WINDOW: i64 = 200_000;
 
 /// Runtime model/provider overrides for embedded callers.
@@ -30,6 +39,7 @@ pub struct CodexRuntimeOverrides {
     pub model_context_window: Option<i64>,
     pub personality_enabled: Option<bool>,
     pub wire_api: Option<String>,
+    pub disable_thinking: Option<bool>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -42,6 +52,7 @@ struct RuntimeOverrideValues {
     model_context_window: Option<String>,
     personality_enabled: Option<String>,
     wire_api: Option<String>,
+    disable_thinking: Option<String>,
 }
 
 impl From<CodexRuntimeOverrides> for RuntimeOverrideValues {
@@ -57,6 +68,7 @@ impl From<CodexRuntimeOverrides> for RuntimeOverrideValues {
                 .map(|value| value.to_string()),
             personality_enabled: overrides.personality_enabled.map(|value| value.to_string()),
             wire_api: overrides.wire_api,
+            disable_thinking: overrides.disable_thinking.map(|value| value.to_string()),
         }
     }
 }
@@ -171,16 +183,22 @@ fn non_empty_env_var(name: &str) -> Option<String> {
     })
 }
 
+/// Try the primary env var first, then fall back to the alternative.
+fn non_empty_env_var_with_fallback(primary: &str, fallback: &str) -> Option<String> {
+    non_empty_env_var(primary).or_else(|| non_empty_env_var(fallback))
+}
+
 fn read_runtime_overrides_from_env() -> RuntimeOverrideValues {
     RuntimeOverrideValues {
-        model: non_empty_env_var(ENV_CODEX_MODEL),
-        base_url: non_empty_env_var(ENV_CODEX_BASE_URL),
-        api_key: non_empty_env_var(ENV_CODEX_API_KEY),
+        model: non_empty_env_var_with_fallback(ENV_CODEX_MODEL, ENV_OPENAI_MODEL),
+        base_url: non_empty_env_var_with_fallback(ENV_CODEX_BASE_URL, ENV_OPENAI_BASE_URL),
+        api_key: non_empty_env_var_with_fallback(ENV_CODEX_API_KEY, ENV_OPENAI_API_KEY),
         provider_id: non_empty_env_var(ENV_CODEX_PROVIDER_ID),
         provider_name: non_empty_env_var(ENV_CODEX_PROVIDER_NAME),
         model_context_window: non_empty_env_var(ENV_CODEX_MODEL_CONTEXT_WINDOW),
         personality_enabled: non_empty_env_var(ENV_CODEX_PERSONALITY_ENABLED),
         wire_api: non_empty_env_var(ENV_CODEX_WIRE_API),
+        disable_thinking: non_empty_env_var_with_fallback(ENV_CODEX_DISABLE_THINKING, ENV_DISABLE_THINKING),
     }
 }
 
@@ -255,6 +273,23 @@ fn apply_runtime_override_values(mut config: Config, overrides: RuntimeOverrideV
         }
     }
 
+    if let Some(raw_value) = overrides.disable_thinking.as_deref() {
+        match parse_bool_override(raw_value) {
+            Some(true) => {
+                config.model_reasoning_effort = Some(ReasoningEffort::None);
+                config.model_supports_reasoning_summaries = Some(false);
+            }
+            Some(false) => {}
+            None => {
+                tracing::warn!(
+                    env_var = ENV_CODEX_DISABLE_THINKING,
+                    value = %raw_value,
+                    "ignoring invalid disable_thinking override; expected true/false, 1/0, yes/no, or on/off"
+                );
+            }
+        }
+    }
+
     match resolve_model_context_window_override(
         overrides.model_context_window.as_deref(),
         custom_provider_configured,
@@ -278,6 +313,8 @@ fn apply_runtime_override_values(mut config: Config, overrides: RuntimeOverrideV
         let provider_display_name = provider_name.unwrap_or_else(|| provider_id.clone());
         let env_key = if api_key.is_some() {
             None
+        } else if non_empty_env_var(ENV_OPENAI_API_KEY).is_some() {
+            Some(ENV_OPENAI_API_KEY.to_string())
         } else {
             Some(ENV_CODEX_API_KEY.to_string())
         };
@@ -608,6 +645,78 @@ mod tests {
         assert_eq!(parse_wire_api(Some("invalid")), None);
         assert_eq!(parse_wire_api(Some("")), None);
         assert_eq!(parse_wire_api(Some("CHATGPT")), None);
+    }
+
+    #[tokio::test]
+    async fn disable_thinking_true_sets_reasoning_effort_to_none() {
+        let config = apply_runtime_override_values(
+            base_test_config().await,
+            RuntimeOverrideValues {
+                disable_thinking: Some("1".to_string()),
+                ..RuntimeOverrideValues::default()
+            },
+        );
+
+        assert_eq!(config.model_reasoning_effort, Some(ReasoningEffort::None));
+        assert_eq!(config.model_supports_reasoning_summaries, Some(false));
+    }
+
+    #[tokio::test]
+    async fn disable_thinking_false_does_not_change_reasoning_effort() {
+        let base_config = base_test_config().await;
+        let base_effort = base_config.model_reasoning_effort.clone();
+
+        let config = apply_runtime_override_values(
+            base_config,
+            RuntimeOverrideValues {
+                disable_thinking: Some("0".to_string()),
+                ..RuntimeOverrideValues::default()
+            },
+        );
+
+        assert_eq!(config.model_reasoning_effort, base_effort);
+    }
+
+    #[tokio::test]
+    async fn disable_thinking_invalid_value_is_ignored() {
+        let base_config = base_test_config().await;
+        let base_effort = base_config.model_reasoning_effort.clone();
+
+        let config = apply_runtime_override_values(
+            base_config,
+            RuntimeOverrideValues {
+                disable_thinking: Some("maybe".to_string()),
+                ..RuntimeOverrideValues::default()
+            },
+        );
+
+        assert_eq!(config.model_reasoning_effort, base_effort);
+    }
+
+    #[tokio::test]
+    async fn runtime_overrides_use_openai_fallback_env_vars() {
+        // Simulate: only OPENAI_* env vars are set (no CODEX_* counterparts).
+        // We test via RuntimeOverrideValues directly since we can't safely
+        // set process-wide env vars in parallel tests.
+        let config = apply_runtime_override_values(
+            base_test_config().await,
+            RuntimeOverrideValues {
+                model: Some("gpt-4o".to_string()),
+                base_url: Some("https://api.openai.com/v1".to_string()),
+                api_key: Some("sk-test".to_string()),
+                ..RuntimeOverrideValues::default()
+            },
+        );
+
+        assert_eq!(config.model.as_deref(), Some("gpt-4o"));
+        assert_eq!(
+            config.model_provider.base_url.as_deref(),
+            Some("https://api.openai.com/v1")
+        );
+        assert_eq!(
+            config.model_provider.experimental_bearer_token.as_deref(),
+            Some("sk-test")
+        );
     }
 
     #[tokio::test]

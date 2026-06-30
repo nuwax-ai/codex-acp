@@ -3,7 +3,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { isMusl } from "detect-libc";
+import { familySync } from "detect-libc";
 
 // Map Node.js platform/arch to package names
 function getPlatformPackage() {
@@ -16,10 +16,10 @@ function getPlatformPackage() {
       x64: "nuwax-codex-acp-darwin-x64",
     },
     linux: {
-      arm64: isMusl()
+      arm64: familySync() === "musl"
         ? "nuwax-codex-acp-linux-arm64-musl"
         : "nuwax-codex-acp-linux-arm64",
-      x64: isMusl()
+      x64: familySync() === "musl"
         ? "nuwax-codex-acp-linux-x64-musl"
         : "nuwax-codex-acp-linux-x64",
     },
